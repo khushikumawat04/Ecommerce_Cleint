@@ -1,0 +1,64 @@
+.tracking-card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.timeline {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.step {
+  text-align: center;
+  flex: 1;
+  position: relative;
+  color: #aaa;
+}
+
+.step i {
+  font-size: 20px;
+  margin-bottom: 5px;
+}
+
+.step.active {
+  color: var(--primary-green);
+}
+
+.step::after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: #ddd;
+  z-index: -1;
+}
+
+.step:last-child::after {
+  display: none;
+}
+
+.step.active::after {
+  background: var(--primary-green);
+}
+
+/* ITEMS */
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #eee;
+  padding: 8px 0;
+}
+
+/* PAYMENT */
+.paid {
+  color: var(--primary-green);
+}
+
+.pending {
+  color: red;
+}

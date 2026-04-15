@@ -1,0 +1,62 @@
+/* ===== ORDER CARD ===== */
+.order-card {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: 0.3s;
+}
+
+.order-card:hover {
+  transform: translateY(-5px);
+}
+
+/* ===== HEADER ===== */
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+/* ===== STATUS COLORS ===== */
+.status {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+.status.created { background: #eee; }
+.status.confirmed { background: #bbdefb; }
+.status.shipped { background: #ffe082; }
+.status.delivered { background: var(--primary-green); color: white; }
+
+/* ===== ITEMS ===== */
+.order-items {
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  padding: 10px 0;
+}
+
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+/* ===== FOOTER ===== */
+.order-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+/* PAYMENT */
+.paid {
+  color: var(--primary-green);
+}
+
+.pending {
+  color: red;
+}

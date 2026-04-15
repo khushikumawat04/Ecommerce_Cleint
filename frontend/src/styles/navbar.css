@@ -1,0 +1,539 @@
+/* ===============================
+   UPPER NAVBAR
+================================ */
+.upper-navbar {
+  background: var(--primary-green);
+  color: #fff;
+  font-size: 13px;
+}
+
+.upper-container {
+  /* max-width: 1200px; */
+  /* margin: auto; */
+  padding: 6px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  overflow: visible; /* important */
+}
+
+.upper-text {
+  font-weight: 400;
+}
+
+.upper-icons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* WhatsApp */
+.whatsapp-icon {
+  color: white;
+  font-size: 18px;
+  transition: 0.3s;
+}
+
+.whatsapp-icon:hover {
+  transform: scale(1.2);
+}
+
+/* LEFT SIDE */
+.upper-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* RIGHT SIDE */
+.upper-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ICONS */
+.icon {
+  color: white;
+  font-size: 16px;
+  transition: 0.3s;
+}
+
+.icon:hover {
+  transform: scale(1.2);
+  color: gold;
+}
+
+/* AUTH BUTTONS */
+.auth-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.signup-btn {
+  background: gold;
+  color: black;
+  padding: 6px 14px;
+  border-radius: 20px;
+  text-decoration: none;
+  font-size: 13px;
+  transition: 0.3s;
+}
+
+/* .signup-btn:hover {
+  background: white;
+  color: #00c853;
+} */
+/* ===============================
+   MAIN NAVBAR
+================================ */
+.beast-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  height: 70px;
+  background: linear-gradient(90deg, #1a1a1a, #2a2a2a);
+  color: white;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* Logo */
+/* .beast-logo img {
+  height: 45px;
+  width: 100p;
+} */
+
+/* ===============================
+   SEARCH BAR
+================================ */
+.search-container {
+  flex: 1;
+  max-width: 500px;
+  margin: 0 2rem;
+  position: relative;
+}
+
+.search-input {
+  width: 100%;
+  height: 42px;
+  padding: 0 1rem 0 2.5rem;
+  border-radius: 25px;
+  border: none;
+  outline: none;
+  background: #f1f1f1;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+.search-input:focus {
+  background: #fff;
+  box-shadow: 0 0 0 2px var(--primary-green);
+}
+
+/* Search icon */
+.search-container::before {
+  content: "🔍";
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* ===============================
+   NAV RIGHT
+================================ */
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+/* Links */
+.nav-link {
+  color: #ccc !important;
+  text-decoration: none;
+  font-size: 14px;
+  position: relative;
+  padding: 5px 10px;
+  transition: 0.3s;
+}
+
+.nav-link:hover {
+  color: #00c853 !important;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background: #00c853;
+  transition: 0.3s;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* ===============================
+   CART ICON
+================================ */
+.cart-icon-wrapper {
+  position: relative;
+  font-size: 1.4rem;
+  color: #00c853 !important;
+  transition: 0.3s;
+}
+
+.cart-icon-wrapper:hover {
+  transform: scale(1.15);
+}
+
+.cart-badge {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  background: gold;
+  color: black;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===============================
+   USER DROPDOWN
+================================ */
+.user-dropdown {
+  position: relative;
+}
+
+/* Trigger */
+.user-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.1);
+  padding: 6px 12px;
+  border-radius: 20px;
+  color: white;
+  font-size: 13px;
+  cursor: pointer;
+  backdrop-filter: blur(5px);
+  transition: 0.3s;
+}
+
+.user-trigger:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+/* Arrow */
+.dropdown-arrow {
+  transition: 0.3s;
+}
+
+.dropdown-arrow.rotate {
+  transform: rotate(180deg);
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  width: 180px;
+  background: white;
+  border-radius: 10px;
+  padding: 8px 0;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  z-index: 99999;
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.25s ease;
+}
+
+/* Show */
+.dropdown-menu.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Items */
+.dropdown-menu a,
+.dropdown-menu button {
+  display: block;
+  width: 100%;
+  padding: 10px 15px;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 13px;
+  cursor: pointer;
+  color: #333;
+}
+
+.dropdown-menu a:hover,
+.dropdown-menu button:hover {
+  background: #f5f5f5;
+  color: #00c853;
+}
+
+/* Divider */
+.dropdown-divider {
+  height: 1px;
+  background: #eee;
+  margin: 6px 0;
+}
+
+/* ===============================
+   LOGIN BUTTON
+================================ */
+.login-btn {
+  background: white;
+  color: #00c853;
+  padding: 6px 14px;
+  border-radius: 20px;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.login-btn:hover {
+  background: gold;
+  color: black;
+}
+
+/* ===============================
+   RESPONSIVE
+================================ */
+@media (max-width: 768px) {
+  .beast-navbar {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 10px;
+  }
+
+  .search-container {
+    width: 100%;
+    margin: 10px 0;
+  }
+
+  .navbar-right {
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+}
+
+search-container {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+}
+
+.search-dropdown {
+  position: absolute;
+  top: 100%;   /* directly below input */
+  left: 0;     /* align with left of input */
+  width: 100%; /* same width as input */
+
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-top: 5px;
+
+  z-index: 9999;
+
+  max-height: 250px;
+  overflow-y: auto;
+  color: var(--text-dark);
+
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.search-item {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.search-item:hover {
+  background: #f5f5f5;
+}
+
+
+/* product dropdown  */
+.products-menu {
+  position: relative;
+  cursor: pointer;
+}
+
+.products-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%); /* center under Products */
+
+  width: 400px; /* adjust width */
+  background: #fff;
+
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* ✅ 2 per row */
+
+  gap: 15px;
+  padding: 15px;
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  border-radius: 10px;
+  z-index: 999;
+
+  max-height: 400px;   /* ✅ makes it long */
+  overflow-y: auto;    /* ✅ scroll if more products */
+}
+
+.product-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: 0.3s;
+}
+
+.product-card img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.product-card p {
+  font-size: 13px;
+  margin: 0;
+  text-align: left;
+}
+
+.product-card:hover {
+  background: #f5f5f5;
+}
+
+
+
+/* Categoty Filter */
+.filter-buttons {
+  display: flex;
+  /* justify-content: center; */
+  gap: 10px;
+  flex-wrap: wrap;
+  /* margin-left: 200px; */
+}
+
+.filter-btn {
+  padding: 8px 18px;
+  border-radius: 20px;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 14px;
+}
+
+.filter-btn:hover {
+  background: #f5f5f5;
+}
+
+.filter-btn.active {
+  background: var(--primary-green);
+  color: white;
+  border-color: var(--primary-green)
+}
+
+
+
+/* ===============================
+   MOBILE NAVBAR
+================================ */
+
+.mobile-toggle {
+  display: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: white;
+}
+
+/* Cart always visible */
+.cart-mobile {
+  display: flex;
+  align-items: center;
+}
+
+/* ===============================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 768px) {
+
+  .beast-navbar {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+  }
+
+  /* Show hamburger */
+  .mobile-toggle {
+    display: block;
+  }
+
+  /* Hide menu by default */
+  .navbar-right {
+    position: absolute;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    background: #1a1a1a;
+
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px;
+
+    gap: 15px;
+
+    display: none;
+    color: var(--white);
+  }
+
+  /* Show when active */
+  .navbar-right.active {
+    display: flex;
+  }
+
+  /* Full width links */
+  .nav-link {
+    width: 100%;
+    padding: 10px 0;
+    border-bottom: 1px solid #333;
+  }
+
+  /* Search full width */
+  .search-container {
+    width: 100%;
+    margin: 0 10px;
+  }
+
+  /* Product dropdown fix for mobile */
+  .products-dropdown {
+    position: static;
+    transform: none;
+    width: 100%;
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

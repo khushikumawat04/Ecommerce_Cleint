@@ -1,0 +1,74 @@
+  /* MAIN */
+  .footer {
+    background: var(--text-dark);
+    color: var(--white);
+  }
+  
+  /* TRUST STRIP */
+  .footer-top {
+    background: var(--primary-green);
+    color: var(--white);
+    font-weight: 500;
+  }
+  
+  /* BRAND */
+  .brand {
+    color: var(--primary-green);
+    font-weight: 700;
+  }
+  
+  /* LINKS */
+  .footer ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .footer ul li {
+    margin-bottom: 8px;
+  }
+  
+  .footer a {
+    text-decoration: none;
+    color: var(--whiet);
+    font-size: 14px;
+  }
+  
+  .footer a:hover {
+    color: var(--primary-green);
+  }
+  
+  /* SOCIAL */
+  .social-icons i {
+    font-size: 20px;
+    margin-right: 10px;
+    cursor: pointer;
+  }
+  
+  .social-icons i:hover {
+    color: var(--primary-green);
+  }
+  
+  /* BUTTON */
+  .btn-subscribe {
+    background: var(--primary-green);
+    color: var(--white);
+    border: none;
+  }
+  
+  .btn-subscribe:hover {
+    background: var(--light-green);
+  }
+  
+  /* CONTACT STRIP */
+  .footer-contact {
+    background: #e8f5e9;
+    font-size: 14px;
+  }
+  
+  /* BOTTOM */
+  .footer-bottom {
+    background-color: var(--primary-green);
+    /* border-top: 1px solid #ddd; */
+    font-size: 13px;
+    color: var(--white);
+  }
