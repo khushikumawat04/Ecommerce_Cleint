@@ -8,6 +8,7 @@ const orderRoutes = require("./routes/orderRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const passport = require("./config/passport");
+const contectRoutes = require("./routes/contactRoutes");  
 dotenv.config();
 connectDB();
 
@@ -35,6 +36,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/contact", contectRoutes);
 
 const PORT = process.env.PORT || 5000;
 
