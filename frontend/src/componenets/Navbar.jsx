@@ -198,6 +198,10 @@ useEffect(() => {
         {/* RIGHT SIDE */}
        <div className={`navbar-right ${menuOpen ? "active" : ""}`}>
   
+   <Link to="/about-us" className="nav-link">
+    About Us
+  </Link>
+
   <div
     className="nav-link products-menu"
     onMouseEnter={() => setShowProducts(true)}

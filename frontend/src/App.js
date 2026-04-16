@@ -15,10 +15,17 @@ import OrderDetails from './pages/OrderDetails';
 import AdminDashboard from './pages/AdminDashboard';
 import GoogleSuccess from './pages/GoogleSuccess';
 import Profile from './pages/Profile';
-
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import Terms from './pages/Terms';
+import RefundPolicy from './pages/RefundPolicy';
+import ShippingPolicy from './pages/ShippingPolicy';  
+import AboutUs from './pages/AboutUs';
+import Contact from './pages/Contact';
+import WhatsAppFloat from './componenets/WhatsAppFloat';
 function App() {
   return (
     <BrowserRouter>
+    <WhatsAppFloat /> {/* FLOATING WHATSAPP BUTTON */}
        {/* ✅ GLOBAL TOAST (PLACE HERE) */}
       <ToastContainer 
         position="top-right"
@@ -57,6 +64,13 @@ function App() {
     </AdminRoute>
   }
 />
+
+   <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-conditions" element={<Terms />} />
+          <Route path="/refund-policy" element={<RefundPolicy />} />
+          <Route path="/shipping-policy" element={<ShippingPolicy />} />
+          <Route path="/about-us" element={<AboutUs />} />
+          <Route path="/contact" element={<Contact />} />
       </Routes>
     </BrowserRouter>
   );

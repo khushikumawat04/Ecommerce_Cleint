@@ -1,6 +1,7 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/footer.css";
+import { Link } from "react-router-dom";  
 
 const Footer = () => {
   return (
@@ -55,17 +56,18 @@ const Footer = () => {
           </div>
 
           {/* COMPANY */}
-          <div className="col-md-2 mb-4">
+           <div className="col-md-4 mb-4">
             <h6>Company</h6>
-            <ul>
-              <li><a href="#">About Us</a></li>
-              <li><a href="#">Privacy Policy</a></li>
-              <li><a href="#">Terms</a></li>
+            <ul className="list-unstyled">
+              <li><Link className="text-white" to="/privacy-policy">Privacy Policy</Link></li>
+              <li><Link className="text-white" to="/terms-conditions">Terms & Conditions</Link></li>
+              <li><Link className="text-white" to="/refund-policy">Refund Policy</Link></li>
+              <li><Link className="text-white" to="/shipping-policy">Shipping Policy</Link></li>
             </ul>
           </div>
 
           {/* NEWSLETTER */}
-          <div className="col-md-3 mb-4">
+          {/* <div className="col-md-3 mb-4">
             <h6>Join Our Community</h6>
             <p>Get offers, tips & exclusive deals</p>
 
@@ -77,7 +79,7 @@ const Footer = () => {
               />
               <button className="btn btn-subscribe ms-2">Join</button>
             </div>
-          </div>
+          </div> */}
 
         </div>
       </div>

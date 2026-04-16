@@ -1,0 +1,68 @@
+/* =========================
+   WHATSAPP FLOAT BUTTON
+========================= */
+
+.wa-float-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 58px;
+  height: 58px;
+  background: #25D366;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  z-index: 9999;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+  transition: all 0.3s ease;
+}
+
+/* Hover effect */
+.wa-float-btn:hover {
+  transform: scale(1.1);
+}
+
+/* Icon */
+.wa-icon {
+  font-size: 24px;
+  color: #fff;
+}
+
+/* Pulse animation (attention grabbing) */
+.wa-float-btn::after {
+  content: "";
+  position: absolute;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: rgba(37, 211, 102, 0.4);
+  animation: pulse 2s infinite;
+  z-index: -1;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+/* Mobile adjustment */
+@media (max-width: 480px) {
+  .wa-float-btn {
+    width: 52px;
+    height: 52px;
+    bottom: 15px;
+    right: 15px;
+  }
+}

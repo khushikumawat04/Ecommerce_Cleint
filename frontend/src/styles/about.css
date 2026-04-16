@@ -1,0 +1,138 @@
+/* =========================
+   WRAPPER (ISOLATED)
+========================= */
+
+.about-wrapper {
+  background: var(--bg-light);
+  padding-bottom: 60px;
+  font-family: Arial, sans-serif;
+}
+
+/* Container */
+.about-container {
+  width: 90%;
+  max-width: 1100px;
+  margin: auto;
+}
+
+/* =========================
+   HERO SECTION
+========================= */
+
+.about-hero {
+  background: linear-gradient(
+    135deg,
+    var(--primary-green),
+    var(--light-green)
+  );
+  color: white;
+  padding: 80px 20px;
+  text-align: center;
+  border-radius: 0 0 30px 30px;
+}
+
+.about-badge {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  display: inline-block;
+  margin-bottom: 15px;
+}
+
+.about-title {
+  font-size: 38px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.about-subtitle {
+  font-size: 16px;
+  max-width: 700px;
+  margin: auto;
+  line-height: 1.6;
+}
+
+/* =========================
+   GRID SECTION
+========================= */
+
+.about-content {
+  padding: 60px 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.about-card {
+  background: var(--white);
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: 0.3s ease;
+}
+
+.about-card:hover {
+  transform: translateY(-5px);
+}
+
+.about-card h3 {
+  color: var(--primary-green);
+  margin-bottom: 10px;
+}
+
+/* =========================
+   STORY SECTION
+========================= */
+
+.about-story {
+  background: white;
+  padding: 60px 20px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 1100px;
+  margin: auto;
+}
+
+.about-story h2 {
+  color: var(--text-dark);
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.about-story h2::after {
+  content: "";
+  width: 50px;
+  height: 4px;
+  background: var(--primary-green);
+  display: block;
+  margin-top: 8px;
+  border-radius: 10px;
+}
+
+.about-story p {
+  line-height: 1.7;
+  margin-bottom: 15px;
+  color: #444;
+}
+
+/* =========================
+   MOBILE RESPONSIVE
+========================= */
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-title {
+    font-size: 28px;
+  }
+
+  .about-hero {
+    padding: 60px 15px;
+  }
+}
