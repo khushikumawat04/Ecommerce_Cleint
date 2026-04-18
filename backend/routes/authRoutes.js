@@ -38,7 +38,7 @@ router.get(
 
     // redirect to frontend
     res.redirect(
-      `http://localhost:3000/google-success?token=${token}`
+      `https://karmaass.com/google-success?token=${token}`
     );
   }
 );

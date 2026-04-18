@@ -56,7 +56,7 @@ const Footer = () => {
           </div>
 
           {/* COMPANY */}
-           <div className="col-md-4 mb-4">
+           <div className="col-md-2 mb-4">
             <h6>Company</h6>
             <ul className="list-unstyled">
               <li><Link className="text-white" to="/privacy-policy">Privacy Policy</Link></li>
@@ -67,19 +67,26 @@ const Footer = () => {
           </div>
 
           {/* NEWSLETTER */}
-          {/* <div className="col-md-3 mb-4">
-            <h6>Join Our Community</h6>
-            <p>Get offers, tips & exclusive deals</p>
+          <div className="col-md-2 mb-4">
+           <h6>Contact</h6>
 
-            <div className="d-flex">
-              <input
-                type="email"
-                className="form-control"
-                placeholder="Enter email"
-              />
-              <button className="btn btn-subscribe ms-2">Join</button>
-            </div>
-          </div> */}
+ <ul className="footer-contact-list">
+  <li>
+    📧 <a href="mailto:support@karmaass.com">support@karmaass.com</a>
+  </li>
+  <li>
+    📞 <a href="tel:+919752504406">+91 9752504406</a>
+  </li>
+  <li>📍 Khargone, MP, India</li>
+</ul>
+
+  {/* SOCIAL ICONS */} 
+   {/* <div className="social-icons mt-3">
+    <a href="#"><i className="fa fa-facebook"></i></a>
+    <a href="#"><i className="fa fa-instagram"></i></a>
+    <a href="#"><i className="fa fa-youtube"></i></a>
+  </div> */}
+          </div>
 
         </div>
       </div>

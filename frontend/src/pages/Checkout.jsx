@@ -2,6 +2,8 @@ import { useState,useEffect, useContext } from "react";
 import { CartContext } from "../context/CartContext";
 import Navbar from "../componenets/Navbar";
 import Footer from "../componenets/Footer";
+// import { Toast } from "bootstrap";
+import { toast } from "react-toastify";
 
 function Checkout() {
   const { cartItems, cartTotal, clearCart } = useContext(CartContext);
@@ -93,7 +95,13 @@ const handleFinalOrder = async () => {
           Authorization: `Bearer ${localStorage.getItem("token")}`
         },
         body: JSON.stringify({
-          items: cartItems,
+         items: cartItems.map(item => ({
+  productId: item._id,
+  name: item.name,
+  price: item.price,
+  quantity: item.quantity,
+  image: item.images?.[0]?.url   // ✅ IMPORTANT FIX
+})),
           total: cartTotal,
           address,
           paymentMethod: "COD"
@@ -103,9 +111,11 @@ const handleFinalOrder = async () => {
       const data = await res.json();
 
       if (data.success) {
-        alert("Order placed successfully 🎉");
-        clearCart();
-        window.location.href = "/";
+      toast.success("Order placed successfully! 🎉");
+     setTimeout(() => {
+  clearCart();
+  window.location.href = "/";
+}, 2000); // ⏱️ 2 seconds
       }
 
     } else {
@@ -118,7 +128,13 @@ const handleFinalOrder = async () => {
           Authorization: `Bearer ${localStorage.getItem("token")}`
         },
         body: JSON.stringify({
-          items: cartItems,
+      items: cartItems.map(item => ({
+  productId: item._id,
+  name: item.name,
+  price: item.price,
+  quantity: item.quantity,
+  image: item.images?.[0]?.url   // ✅ IMPORTANT FIX
+})),
           total: cartTotal,
           address,
           paymentMethod: "ONLINE"
@@ -162,11 +178,13 @@ const handleFinalOrder = async () => {
           const verifyData = await verifyRes.json();
 
           if (verifyData.success) {
-            alert("Payment successful 🎉");
-            clearCart();
-            window.location.href = "/";
+            toast.success("Payment successful! 🎉") ;
+            setTimeout(() => {
+  clearCart();
+  window.location.href = "/";
+}, 3000); // ⏱️ 2 seconds
           } else {
-            alert("Payment verification failed ❌");
+            toast.error("Payment verification failed ❌");
           }
         }
       };
@@ -356,8 +374,26 @@ useEffect(() => {
                 {cartItems.map(item => (
                   <div key={item._id}
                     className="d-flex justify-content-between border-bottom py-2">
-                    <span>{item.name} × {item.quantity}</span>
-                    <span>₹{item.price * item.quantity}</span>
+                   <div className="d-flex align-items-center">
+      <img
+        src={item.images?.[0]?.url}
+        alt={item.name}
+        style={{
+          width: "60px",
+          height: "60px",
+          objectFit: "cover",
+          borderRadius: "8px",
+          marginRight: "10px"
+        }}
+      />
+
+      <div>
+        <p className="mb-0">{item.name}</p>
+        <small>Qty: {item.quantity}</small>
+      </div>
+    </div>
+
+    <span>₹{item.price * item.quantity}</span>
                   </div>
                 ))}
               </div>

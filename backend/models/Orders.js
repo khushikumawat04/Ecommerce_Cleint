@@ -13,7 +13,8 @@ const orderSchema = new mongoose.Schema({
       name: String,
       price: Number,
       quantity: Number,
-      productId: String
+      productId: String,
+      image: String
     }
   ],
 
@@ -68,6 +69,12 @@ const orderSchema = new mongoose.Schema({
   trackingId: String,
   courier: String,
   shipmentId: String,
+  cancelReason: {
+  type: String,
+  default: ""
+},
+cancelledAt: Date,
+deliveredAt: Date,
 
 }, { timestamps: true });
 

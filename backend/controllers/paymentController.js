@@ -6,17 +6,26 @@ const crypto = require("crypto");
 // CREATE RAZORPAY ORDER
 exports.createOrder = async (req, res) => {
   try {
-    const { amount, orderId } = req.body;
+    let { amount, orderId } = req.body;
+
+    // 🔥 FORCE VALID NUMBER
+    amount = Number(amount);
+
+    if (!amount || amount <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid amount"
+      });
+    }
 
     const options = {
-      amount: amount * 100,
+      amount: Math.round(amount * 100), // 🔥 SAFE
       currency: "INR",
       receipt: "receipt_" + orderId
     };
 
     const razorOrder = await razorpay.orders.create(options);
 
-    // 🔥 SAVE RAZORPAY ORDER ID IN DB
     await Order.findByIdAndUpdate(orderId, {
       razorpayOrderId: razorOrder.id
     });

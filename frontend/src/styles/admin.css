@@ -1,48 +1,131 @@
 .admin-container {
   padding: 40px;
-  background: var(--bg-light);
+  background: #f5f7fb;
   min-height: 100vh;
 }
 
 .admin-title {
-  margin-bottom: 20px;
-  font-weight: bold;
+  margin-bottom: 25px;
+  font-weight: 600;
+}
+
+/* TABLE */
+.table-wrapper {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
 }
 
 .admin-table {
   width: 100%;
-  background: white;
-  border-radius: 10px;
-  overflow: hidden;
+  border-collapse: collapse;
 }
 
-.admin-table th,
-.admin-table td {
-  padding: 12px;
+.admin-table th {
+  background: #4caf50;
+  color: white;
+  padding: 14px;
   text-align: center;
 }
 
-.admin-table thead {
-  background: var(--primary-green);
-  color: white;
-}
-
-.admin-table tr {
+.admin-table td {
+  padding: 12px;
+  text-align: center;
   border-bottom: 1px solid #eee;
 }
 
-/* STATUS */
-.status {
-  padding: 5px 10px;
+.price {
+  font-weight: 600;
+}
+
+/* STATUS BADGES */
+.status-badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+.created {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.confirmed {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.shipped {
+  background: #fff3e0;
+  color: #ef6c00;
+}
+
+.delivered {
+  background: #c8e6c9;
+  color: #1b5e20;
+}
+
+.cancelled {
+  background: #ffcdd2;
+  color: #b71c1c;
+}
+
+/* PAYMENT */
+.payment {
+  padding: 4px 10px;
   border-radius: 20px;
   font-size: 12px;
 }
 
-.status.created { background: #eee; }
-.status.confirmed { background: #bbdefb; }
-.status.shipped { background: #ffe082; }
-.status.delivered { background: var(--primary-green); color: white; }
+.payment.paid {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
 
+.payment.pending {
+  background: #fff3e0;
+  color: #ef6c00;
+}
+
+/* ACTIONS */
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.status-dropdown {
+  padding: 5px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+/* BUTTONS */
+.btn-view {
+  background: #f1f1f1;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-ship {
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-ship.disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* MODAL */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -62,4 +145,38 @@
   width: 400px;
   max-height: 80vh;
   overflow-y: auto;
+}
+
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+}
+
+.btn-close {
+  background: red;
+  color: white;
+  border: none;
+  padding: 8px;
+  margin-top: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.filters {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.filters select,
+.filters input {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.order-date {
+  color: gray;
+  font-size: 12px;
 }

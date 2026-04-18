@@ -231,8 +231,11 @@ useEffect(() => {
     )}
   </div>
 
-  <Link to="/track" className="nav-link" onClick={()=>setMenuOpen(false)}>
+  <Link to="/track" className="nav-link">
     Track Order
+  </Link>
+   <Link to="/contact" className="nav-link">
+    Contact Us
   </Link>
 
 </div>

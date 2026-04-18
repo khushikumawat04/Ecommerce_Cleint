@@ -1,202 +1,152 @@
-:root {
-  --primary-green: #00C853;
-  --light-green: #81C784;
-  --bg-light: #F1F1F1;
-  --text-dark: #212121;
-  --white: #ffffff;
-}
-
 /* =========================
-   WRAPPER
+   MAIN CONTAINER
 ========================= */
 
-.contact-wrapper {
-  background: var(--bg-light);
+.contact-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   min-height: 100vh;
-  padding: 60px 15px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  background: var(--bg-light);
 }
 
 /* =========================
-   FORM CARD
+   LEFT SIDE (INFO)
 ========================= */
 
-.contact-card {
+.contact-info {
   background: var(--white);
-  width: 100%;
-  max-width: 420px;
-  padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-  text-align: center;
+  color: var(--text-dark);
+  padding: 50px 40px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
   animation: fadeInUp 0.4s ease;
+  border-radius: 15px;
+
 }
 
-.contact-card h2 {
-  margin-bottom: 20px;
-  color: var(--text-dark);
+.contact-sub {
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  opacity: 0.9;
+  font-size: 14px;
+}
+
+.contact-info h2 {
+  margin: 10px 0 30px;
   font-weight: 700;
 }
 
+/* Info boxes */
+
+.info-box {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.info-box span {
+  font-size: 20px;
+  margin-right:25px;
+  background: var(--primary-green);
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+  height: 50px;
+  width: 50px;
+
+}
+
+.info-box h4 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.info-box p {
+  margin: 5px 0 0;
+  font-size: 14px;
+  opacity: 0.95;
+}
+
+/* Map */
+
+.map-box {
+  margin-top: 25px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 3px solid rgba(255,255,255,0.2);
+}
+
 /* =========================
-   INPUTS
+   RIGHT SIDE (FORM)
 ========================= */
 
-.contact-card input,
-.contact-card textarea {
+.contact-form-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  background: var(--bg-light);
+}
+
+.contact-form-box form {
+  background: var(--white);
+  padding: 30px;
+  border-radius: 15px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  animation: fadeInUp 0.4s ease;
+}
+
+.contact-form-box h3 {
+  margin-bottom: 20px;
+  color: var(--text-dark);
+}
+
+/* Inputs */
+
+.contact-form-box input,
+.contact-form-box textarea {
   width: 100%;
   padding: 12px;
   margin-bottom: 12px;
   border-radius: 8px;
   border: 1px solid #ddd;
-  font-size: 14px;
-  outline: none;
-  transition: 0.3s ease;
+  transition: 0.3s;
 }
 
-/* Focus effect */
-.contact-card input:focus,
-.contact-card textarea:focus {
+.contact-form-box input:focus,
+.contact-form-box textarea:focus {
   border-color: var(--primary-green);
   box-shadow: 0 0 0 2px rgba(0,200,83,0.1);
 }
 
-/* =========================
-   BUTTON
-========================= */
+/* Button */
 
-.contact-card button {
+.contact-form-box button {
   width: 100%;
   padding: 12px;
   background: var(--primary-green);
-  border: none;
   color: white;
-  font-weight: 600;
+  border: none;
   border-radius: 8px;
-  cursor: pointer;
-  transition: 0.3s ease;
-}
-
-.contact-card button:hover {
-  background: var(--light-green);
-}
-
-/* =========================
-   POPUP (SUCCESS)
-========================= */
-
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.popup-box {
-  background: white;
-  padding: 30px;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 350px;
-  text-align: center;
-  animation: scaleIn 0.3s ease;
-}
-
-.popup-box h3 {
-  color: var(--primary-green);
-  margin-bottom: 10px;
-}
-
-.popup-box p {
-  font-size: 14px;
-  color: #444;
-}
-
-.popup-box button {
-  margin-top: 15px;
-  padding: 10px 20px;
-  background: var(--primary-green);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.popup-box button:hover {
-  background: var(--light-green);
-}
-
-/* =========================
-   WHATSAPP FLOAT BUTTON
-========================= */
-
-.wa-float {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #25D366;
-  color: white;
-  font-size: 22px;
-  width: 55px;
-  height: 55px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-decoration: none;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  z-index: 999;
+  font-weight: 600;
   transition: 0.3s;
 }
 
-.wa-float:hover {
-  transform: scale(1.1);
+.contact-form-box button:hover {
+  background: var(--light-green);
 }
 
 /* =========================
-   ANIMATIONS
+   MOBILE
 ========================= */
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes scaleIn {
-  from {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-/* =========================
-   MOBILE OPTIMIZATION
-========================= */
-
-@media (max-width: 480px) {
-  .contact-card {
-    padding: 20px;
+@media (max-width: 768px) {
+  .contact-container {
+    grid-template-columns: 1fr;
   }
 
-  .contact-card h2 {
-    font-size: 20px;
+  .contact-info {
+    padding: 30px;
   }
 }
