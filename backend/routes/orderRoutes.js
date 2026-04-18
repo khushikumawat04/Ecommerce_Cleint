@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const protect = require("../middleware/authMiddleware");
 const Order= require("../models/Orders");
-const sendEmail = require("../Utils/sendEmail");
+const sendEmail = require("../Utils/SendEmail");
 const User = require("../models/User");
 const  formatDate  = require("../Utils/FormateDate");
 // Protected route
