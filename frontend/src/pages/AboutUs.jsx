@@ -1,93 +1,97 @@
 import React from "react";
 import { Helmet } from "react-helmet";
-import "../styles/about.css"
+import "../styles/about.css";
 import Footer from "../componenets/Footer";
 import Navbar from "../componenets/Navbar";
 
 export default function AboutUs() {
   return (
     <>
-    <Navbar/>
-    <div className="about-wrapper mt-5">
+      <Navbar />
 
-      <Helmet>
-        <title>About Us | Karmaass</title>
-        <meta
-          name="description"
-          content="Learn about Karmaass, our mission, vision, and commitment to quality wellness products in India."
-        />
-      </Helmet>
+      <div className="about-wrapper mt-5">
 
-      {/* HERO SECTION */}
-      <section className="about-hero">
-        <div className="about-container">
-          <span className="about-badge">Trusted Indian Brand</span>
+        <Helmet>
+          <title>About Us | KARMAA'S</title>
+          <meta
+            name="description"
+            content="Learn about KARMAA'S, a registered Indian proprietorship committed to quality products and trusted service."
+          />
+        </Helmet>
 
-          <h1 className="about-title">About Karmaass</h1>
+        {/* HERO SECTION */}
+        <section className="about-hero">
+          <div className="about-container">
+            <span className="about-badge">Registered Indian Business</span>
 
-          <p className="about-subtitle">
-            Karmaass is operated by <b>Karmaass Wellness Pvt. Ltd.</b>, a registered
-            Indian business focused on delivering high-quality wellness and lifestyle products.
-          </p>
-        </div>
-      </section>
+            <h1 className="about-title">About KARMAA'S</h1>
 
-      {/* GRID SECTION */}
-      <section className="about-content">
-        <div className="about-container grid">
-
-          <div className="about-card">
-            <h3>👤 Founder</h3>
-            <p>John Doe (Founder & CEO)</p>
-          </div>
-
-          <div className="about-card">
-            <h3>🏢 Registered Address</h3>
-            <p>
-              Karmaass Wellness Pvt. Ltd.<br />
-              Indore, Madhya Pradesh, India
+            <p className="about-subtitle">
+              KARMAA'S is a registered Indian proprietorship business operated by
+              <b> Aditi Karma</b>, focused on delivering quality products with trust,
+              transparency and customer satisfaction.
             </p>
           </div>
+        </section>
 
-          <div className="about-card">
-            <h3>🎯 Our Mission</h3>
+        {/* GRID SECTION */}
+        <section className="about-content">
+          <div className="about-container grid">
+
+            <div className="about-card">
+              <h3>👤 Proprietor</h3>
+              <p>Aditi Karma</p>
+            </div>
+
+            <div className="about-card">
+              <h3>🏢 Registered Business</h3>
+              <p>
+                Proprietorship Firm <br />
+                Trade Name: KARMAA'S
+              </p>
+            </div>
+
+            <div className="about-card">
+              <h3>📍 Principal Place of Business</h3>
+              <p>
+                Kasrawad Road, Sukhpuri <br />
+                Near Khushbu Furniture Mart <br />
+                Khargone, Madhya Pradesh - 451001
+              </p>
+            </div>
+
+            <div className="about-card">
+              <h3>🧾 GST Registered</h3>
+              <p>
+                GSTIN: 23JAWPK1106A1Z1 <br />
+                Registration Type: Regular
+              </p>
+            </div>
+
+          </div>
+        </section>
+
+        {/* ABOUT SECTION */}
+        <section className="about-story">
+          <div className="about-container">
+            <h2>Who We Are</h2>
+
             <p>
-              To provide safe, effective, and affordable wellness products that
-              improve everyday life.
+              KARMAA'S is built on the values of trust, quality, and customer-first
+              service. As a registered Indian business, we aim to provide reliable
+              products and a smooth shopping experience to our customers.
+            </p>
+
+            <p>
+              We focus on maintaining transparency, authenticity, and consistent
+              quality in everything we offer.
             </p>
           </div>
+        </section>
 
-          <div className="about-card">
-            <h3>💡 Our Vision</h3>
-            <p>
-              To become a trusted global wellness brand known for transparency and quality.
-            </p>
-          </div>
+      </div>
 
-        </div>
-      </section>
-
-      {/* STORY SECTION */}
-      <section className="about-story">
-        <div className="about-container">
-          <h2>Our Story</h2>
-
-          <p>
-            Karmaass started with a simple idea — to make wellness accessible and
-            trustworthy for everyone in India. We noticed a gap in quality and
-            transparency in the market, and we decided to build a brand that people
-            can trust.
-          </p>
-
-          <p>
-            Every product we offer goes through quality checks and is sourced with
-            care to ensure customer satisfaction and safety.
-          </p>
-        </div>
-      </section>
-
-    </div>
-    <Footer/>
+      <Footer />
     </>
   );
 }

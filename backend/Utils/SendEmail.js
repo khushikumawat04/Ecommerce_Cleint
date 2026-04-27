@@ -1,6 +1,6 @@
 const nodemailer = require("nodemailer");
 
-const sendEmail = async (to, subject, htmlContent) => {
+const SendEmail = async (to, subject, htmlContent) => {
   try {
     console.log("ENV:", process.env.EMAIL_USER, process.env.EMAIL_PASS);
 
@@ -26,4 +26,4 @@ const sendEmail = async (to, subject, htmlContent) => {
   }
 };
 
-module.exports = sendEmail;
+module.exports = SendEmail;

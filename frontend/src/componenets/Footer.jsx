@@ -72,7 +72,7 @@ const Footer = () => {
 
  <ul className="footer-contact-list">
   <li>
-    📧 <a href="mailto:support@karmaass.com">support@karmaass.com</a>
+    📧 <a href="mailto:karmaas.in@gmail.com">Karmaas.in@gmail.com</a>
   </li>
   <li>
     📞 <a href="tel:+919752504406">+91 9752504406</a>

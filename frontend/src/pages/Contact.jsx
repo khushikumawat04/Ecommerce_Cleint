@@ -63,7 +63,13 @@ export default function Contact() {
         <span>📍</span>
         <div>
           <h4>Address</h4>
-          <p>H-83, Ravindra Nagar, Khargone, MP 451001</p>
+           <p>
+    Karmaas <br />
+    Kasrawad Road, Sukhpuri <br />
+    Near Khushbu Furniture Mart <br />
+    Khargone, Madhya Pradesh - 451001 <br />
+    India
+  </p>
         </div>
       </div>
 
@@ -103,8 +109,8 @@ export default function Contact() {
     {success && (
       <div className="popup-overlay">
         <div className="popup-box">
-          <h3>✅ Message Sent</h3>
-          <p>We will contact you soon.</p>
+          <h3>Message Sent Successfully</h3>
+<p>Thank you for contacting Karmaas. We'll get back soon.</p>
           <button onClick={() => setSuccess(false)}>Close</button>
         </div>
       </div>

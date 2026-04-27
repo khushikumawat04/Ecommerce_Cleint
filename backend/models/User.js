@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const addressSchema = new mongoose.Schema({
   name: String,
+  // email: String,
   phone: String,
   houseNo: String,
   addressLine: String,
@@ -28,6 +29,13 @@ const userSchema = new mongoose.Schema({
   googleId: String,
 
   avatar: String,
+  
+    provider: {
+    type: String,
+    enum: ["local", "google"],
+    default: "local"
+  },
+
 
   // 🔥 ADD THIS
   addresses: [addressSchema],

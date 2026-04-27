@@ -70,11 +70,11 @@ function ProductDetails() {
                 </span>
               )}
 
-              {product.discountPercent && (
+              {/* {product.discountPercent && (
                 <span className="discount-badge ms-2">
                   {product.discountPercent}% OFF
                 </span>
-              )}
+              )} */}
             </div>
 
             <p className="product-desc">{product.shortDescription}</p>
@@ -84,6 +84,7 @@ function ProductDetails() {
                 <li key={i}>🌿 {h}</li>
               ))}
             </ul>
+     
 
           {/* ADD TO CART */}
                    <button
@@ -237,8 +238,30 @@ function ProductDetails() {
             </div>
           )}
 
+
+
         </div>
       </div>
+             {/* WHY CHOOSE US */}
+<div className="why-choose-box mt-4 ">
+  
+
+  {/* WHY CHOOSE US */}
+{product.whyChoose?.length > 0 && (
+  <div className="why-choose-box mt-4">
+    <h5 className="mb-3">Why Choose This Product?</h5>
+
+    <ul className="why-list">
+      {product.whyChoose.map((point, i) => (
+        <li key={i}>
+          <i className="fas fa-check-circle me-2"></i>
+          {point}
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
+</div>
 
       <Footer />
     </div>

@@ -22,7 +22,9 @@ const orderSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-
+couponCode:String,
+discount:Number,
+subtotal:Number,
   address: {
     name: String,
     phone: String,
@@ -66,15 +68,19 @@ const orderSchema = new mongoose.Schema({
   },
 
   // 🔥 OPTIONAL: DELIVERY TRACKING
-  trackingId: String,
-  courier: String,
-  shipmentId: String,
+trackingId: String,
+awbCode: String,
+trackingUrl: String,
+courier: String,
+shipmentId: String,
   cancelReason: {
   type: String,
   default: ""
 },
 cancelledAt: Date,
 deliveredAt: Date,
+
+
 
 }, { timestamps: true });
 

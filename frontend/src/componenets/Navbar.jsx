@@ -132,7 +132,7 @@ useEffect(() => {
           <div className={`dropdown-menu ${open ? "show" : ""}`}>
             <Link to="/profile" onClick={() => setOpen(false)}>My Profile</Link>
             <Link to="/my-orders" onClick={() => setOpen(false)}>My Orders</Link>
-            <Link to="/wishlist" onClick={() => setOpen(false)}>Wishlist</Link>
+            {/* <Link to="/wishlist" onClick={() => setOpen(false)}>Wishlist</Link> */}
 
             <div className="dropdown-divider"></div>
 
@@ -150,108 +150,122 @@ useEffect(() => {
 </div>
 
       {/* MAIN NAVBAR */}
-      <nav className="beast-navbar">
-        {/* LOGO */}
-        <div className="beast-logo">
-          <Link to="/" className="logo-text">
-            <img
-              src="https://res.cloudinary.com/dj8yfrchq/image/upload/v1775118830/2_1_slbxmj.png"
-              alt="Karmaas Logo"
-              height={200} width={200}
-            />
-          </Link>
+  <nav className="beast-navbar">
+
+      {/* LOGO */}
+      <div className="beast-logo">
+        <Link to="/">
+          <img
+            src="https://res.cloudinary.com/dj8yfrchq/image/upload/v1775118830/2_1_slbxmj.png"
+            alt="logo"
+          height={200} width={200}/>
+        </Link>
+      </div>
+
+      {/* DESKTOP SEARCH */}
+      <div className="search-container desktop-search">
+        <input
+          type="text"
+          className="search-input"
+          placeholder="  Search products..."
+          value={search}
+          onChange={handleSearch}
+        />
+
+        {suggestions.length > 0 && (
+          <div className="search-dropdown">
+            {suggestions.map(item => (
+              <div
+                key={item._id}
+                className="search-item"
+                onClick={() => {
+                  setSearch(item.name);
+                  onSearch(item.name);
+                  setSuggestions([]);
+                }}
+              >
+                {item.name}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* RIGHT SIDE (DESKTOP) */}
+      <div className="navbar-right desktop-menu">
+
+        <Link to="/about-us" className="nav-link">About Us</Link>
+
+        <div
+          className="nav-link products-menu"
+          onMouseEnter={() => setShowProducts(true)}
+          onMouseLeave={() => setShowProducts(false)}
+        >
+          Products
+
+          {showProducts && (
+            <div className="products-dropdown">
+              {products.map(product => (
+                <div
+                  key={product._id}
+                  className="product-card"
+                  onClick={() => navigate(`/product/${product._id}`)}
+                >
+                  <img src={product.images?.[0]?.url} alt="" />
+                  <p>{product.name}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
+
+        {/* <Link to="/track" className="nav-link">Track Order</Link> */}
+        <Link to="/contact" className="nav-link">Contact us</Link>
+
+        {/* CART DESKTOP */}
+        <Link to="/cart" className="cart-icon-wrapper">
+           <i className="fas fa-shopping-cart"></i>
+          {cartItems.length > 0 && (
+            <span className="cart-badge">{cartItems.length}</span>
+          )}
+        </Link>
+      </div>
+
+      {/* MOBILE CART */}
+      <div className="cart-mobile">
+        <Link to="/cart" className="cart-icon-wrapper">
+          <i className="fas fa-shopping-cart"></i>
+          {cartItems.length > 0 && (
+            <span className="cart-badge">{cartItems.length}</span>
+          )}
+        </Link>
+      </div>
+
+      {/* TOGGLE */}
+      <div className="mobile-toggle" onClick={() => setMenuOpen(!menuOpen)}>
+        {menuOpen ? "✖" : "☰"}
+      </div>
+
+      {/* MOBILE MENU */}
+      <div className={`mobile-menu ${menuOpen ? "active" : ""}`}>
 
         {/* SEARCH */}
-        <div className="search-container">
-        <input
-  type="text"
-  className="search-input"
-  placeholder="Search products..."
-  value={search}
-  onChange={handleSearch}
-/>
-       
-          {/* 🔽 DROPDOWN */}
-  {suggestions.length > 0 && (
-    <div className="search-dropdown">
-      {suggestions.map(item => (
-        <div
-          key={item._id}
-          className="search-item"
-          onClick={() => {
-            setSearch(item.name);
-            onSearch(item.name);
-            setSuggestions([]);
-          }}
-        >
-          {item.name}
+        <div className="search-container my-3">
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Search..."
+            value={search}
+            onChange={handleSearch}
+          />
         </div>
-      ))}
-      
-    </div>
-  )}
- </div>
-<div className="mobile-toggle" onClick={() => setMenuOpen(!menuOpen)}>
-  <i className="fas fa-bars"></i>
-</div>
-        {/* RIGHT SIDE */}
-       <div className={`navbar-right ${menuOpen ? "active" : ""}`}>
-  
-   <Link to="/about-us" className="nav-link">
-    About Us
-  </Link>
 
-  <div
-    className="nav-link products-menu"
-    onMouseEnter={() => setShowProducts(true)}
-    onMouseLeave={() => setShowProducts(false)}
-  >
-    Products
+        <Link to="/about-us" onClick={() => setMenuOpen(false)}>About</Link>
+        <Link to="/track" onClick={() => setMenuOpen(false)}>Track</Link>
+        <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact</Link>
 
-    {showProducts && (
-      <div className="products-dropdown">
-        {products.map((product) => (
-          <div
-            key={product._id}
-            className="product-card"
-            onClick={() => {
-              navigate(`/product/${product._id}`);
-              setMenuOpen(false); // ✅ close on click
-            }}
-          >
-            <img
-              src={product.images?.[0]?.url}
-              alt={product.name}
-            />
-            <p>{product.name}</p>
-          </div>
-        ))}
       </div>
-    )}
-  </div>
-
-  <Link to="/track" className="nav-link">
-    Track Order
-  </Link>
-   <Link to="/contact" className="nav-link">
-    Contact Us
-  </Link>
-
-</div>
-
-<div className="cart-mobile">
-  <Link to="/cart" className="cart-icon-wrapper">
-    <i className="fas fa-shopping-cart cart-icon"></i>
-
-    {cartItems.length > 0 && (
-      <span className="cart-badge">
-        {cartItems.length}
-      </span>
-    )}
-  </Link>
-</div>
-      </nav>
+    </nav>
     </>
   );
 }

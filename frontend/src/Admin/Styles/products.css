@@ -1,0 +1,33 @@
+.product-avatar {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background: var(--primary-green);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.table thead th {
+  font-weight: 600;
+  padding: 15px;
+}
+
+.table tbody tr:hover {
+  background: rgba(0, 200, 83, 0.05);
+}
+
+.card {
+  border-radius: 12px;
+}
+
+.btn-success {
+  background: var(--primary-green);
+  border: none;
+}
+
+.btn-success:hover {
+  background: var(--light-green);
+}

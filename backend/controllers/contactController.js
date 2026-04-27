@@ -1,85 +1,104 @@
 const Contact = require("../models/Contact");
 const nodemailer = require("nodemailer");
 
-exports.sendMessage = async (req, res) => {
-  try {
-    const { name, email, phone, message, hidden } = req.body;
 
-    // Anti-spam (honeypot)
-    if (hidden) {
-      return res.status(400).json({ error: "Spam detected" });
-    }
+const sendEmail = require("../utils/sendEmail");
 
-    // Save to DB
-    await Contact.create({ name, email, phone, message });
+exports.sendMessage = async (req,res)=>{
+try{
 
-    // Send Email
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
+const {name,email,phone,message,hidden}=req.body;
 
-   await transporter.sendMail({
-  from: `"Karmaass Store" <${process.env.EMAIL_USER}>`,
-  to: process.env.EMAIL_USER,
-
-  subject: `🛒 New Customer Inquiry | Karmaass Store`,
-
-  html: `
-    <div style="font-family: Arial, sans-serif; background:#f4f4f4; padding:20px;">
-      
-      <div style="max-width:600px; margin:auto; background:#ffffff; border-radius:10px; overflow:hidden; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
-        
-        <!-- Header -->
-        <div style="background:#00C853; color:#fff; padding:15px; text-align:center;">
-          <h2 style="margin:0;">Karmaass Ecommerce</h2>
-          <p style="margin:0; font-size:14px;">New Customer Inquiry</p>
-        </div>
-
-        <!-- Body -->
-        <div style="padding:20px; color:#333;">
-          
-          <p>You have received a new message from your website contact form:</p>
-
-          <table style="width:100%; border-collapse:collapse; margin-top:15px;">
-            <tr>
-              <td style="padding:8px; font-weight:bold;">Name:</td>
-              <td style="padding:8px;">${name}</td>
-            </tr>
-            <tr>
-              <td style="padding:8px; font-weight:bold;">Email:</td>
-              <td style="padding:8px;">${email}</td>
-            </tr>
-            <tr>
-              <td style="padding:8px; font-weight:bold;">Phone:</td>
-              <td style="padding:8px;">${phone}</td>
-            </tr>
-            <tr>
-              <td style="padding:8px; font-weight:bold;">Message:</td>
-              <td style="padding:8px;">${message}</td>
-            </tr>
-          </table>
-
-        </div>
-
-        <!-- Footer -->
-        <div style="background:#f1f1f1; padding:15px; text-align:center; font-size:12px; color:#777;">
-          <p style="margin:0;">Karmaass Ecommerce Store</p>
-          <p style="margin:0;">Customer Support System</p>
-        </div>
-
-      </div>
-    </div>
-  `,
+// Honeypot spam check
+if(hidden){
+return res.status(400).json({
+error:"Spam detected"
 });
-    res.status(200).json({ success: true });
+}
 
-  } catch (err) {
-    res.status(500).json({ error: "Server Error" });
-  }
+// Save message
+await Contact.create({
+name,
+email,
+phone,
+message
+});
+
+
+// reuse same email utility like order confirmation
+await sendEmail(
+process.env.EMAIL_USER,
+"📩 New Customer Inquiry | Karmaas",
+`
+<div style="font-family:Arial;background:#F1F1F1;padding:20px;">
+
+<div style="max-width:600px;margin:auto;background:#fff;border-radius:12px;overflow:hidden;">
+
+<div style="background:#00C853;color:#fff;padding:20px;text-align:center;">
+<h2>Karmaas 🌿</h2>
+<p>New Contact Form Message</p>
+</div>
+
+<div style="padding:20px;color:#212121;">
+
+<p>You received a new customer inquiry:</p>
+
+<table style="width:100%;border-collapse:collapse;">
+<tr>
+<td style="padding:10px;"><b>Name:</b></td>
+<td>${name}</td>
+</tr>
+
+<tr>
+<td style="padding:10px;"><b>Email:</b></td>
+<td>${email}</td>
+</tr>
+
+<tr>
+<td style="padding:10px;"><b>Phone:</b></td>
+<td>${phone}</td>
+</tr>
+
+<tr>
+<td style="padding:10px;"><b>Message:</b></td>
+<td>${message}</td>
+</tr>
+</table>
+
+<div style="margin-top:25px;">
+<a href="mailto:${email}"
+style="
+background:#00C853;
+color:#fff;
+padding:12px 18px;
+text-decoration:none;
+border-radius:6px;">
+Reply to Customer
+</a>
+</div>
+
+</div>
+
+<div style="background:#fafafa;padding:15px;text-align:center;font-size:12px;">
+Customer Support Notification
+</div>
+
+</div>
+</div>
+`
+);
+
+res.status(200).json({
+success:true,
+message:"Message sent successfully"
+});
+
+}catch(err){
+console.error("Contact Error:",err);
+res.status(500).json({
+error:err.message
+});
+}
 };
 
 // exports.sendMessage = async (req, res) => {

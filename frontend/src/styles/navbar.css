@@ -136,7 +136,8 @@
 
 /* Search icon */
 .search-container::before {
-  content: "🔍";
+  /* content: "🔍"; */
+    padding: 0 1rem 0 3rem; /* 👈 increase left padding */
   position: absolute;
   left: 12px;
   top: 50%;
@@ -325,7 +326,7 @@
   }
 
   .search-container {
-    width: 100%;
+    width: 50%;
     margin: 10px 0;
   }
 
@@ -338,7 +339,7 @@
 search-container {
   position: relative;
   width: 100%;
-  max-width: 500px;
+  max-width: 700px;
 }
 
 .search-dropdown {
@@ -484,56 +485,215 @@ search-container {
 @media (max-width: 768px) {
 
   .beast-navbar {
-    flex-wrap: nowrap;
+    display: flex;
+    align-items: center;
     justify-content: space-between;
+    height: 60px;
+    padding: 0 10px;
   }
 
-  /* Show hamburger */
+  /* LOGO */
+  .beast-logo img {
+    height: 80px;
+    width: auto;
+  }
+
+  /* CART */
+  .cart-mobile {
+    margin-left: auto;
+    margin-right: 10px;
+  }
+
+  /* TOGGLE */
   .mobile-toggle {
     display: block;
+    font-size: 22px;
+    cursor: pointer;
   }
 
-  /* Hide menu by default */
+  /* MENU (hidden by default) */
   .navbar-right {
     position: absolute;
-    top: 70px;
+    top: 60px;
     left: 0;
     width: 100%;
     background: #1a1a1a;
 
     flex-direction: column;
     align-items: flex-start;
-    padding: 15px;
 
+    padding: 15px;
     gap: 15px;
 
     display: none;
-    color: var(--white);
+    z-index: 999;
   }
 
-  /* Show when active */
+  /* SHOW MENU */
   .navbar-right.active {
     display: flex;
   }
 
-  /* Full width links */
+  /* FULL WIDTH SEARCH */
+  .search-container {
+    width: 100%;
+  }
+
+  /* LINKS FULL WIDTH */
   .nav-link {
     width: 100%;
     padding: 10px 0;
     border-bottom: 1px solid #333;
   }
 
-  /* Search full width */
-  .search-container {
-    width: 100%;
-    margin: 0 10px;
-  }
-
-  /* Product dropdown fix for mobile */
+  /* PRODUCTS FIX */
   .products-dropdown {
     position: static;
     transform: none;
     width: 100%;
-    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* NAVBAR */
+.beast-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 70px;
+  background: #1a1a1a;
+  color: white;
+}
+
+/* LOGO */
+/* .beast-logo img {
+  height: 45px;
+} */
+
+/* SEARCH */
+.search-container {
+  position: relative;
+  flex: 1;
+  max-width: 600px;
+  margin: 0 20px;
+}
+
+.search-input {
+  width: 100%;
+  height: 40px;
+  border-radius: 25px;
+  padding: 0 15px;
+  border: none;
+}
+
+/* DROPDOWN */
+.search-dropdown {
+  position: absolute;
+  width: 100%;
+  background: white;
+  top: 45px;
+  border-radius: 8px;
+  z-index: 999;
+}
+
+.search-item {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.search-item:hover {
+  background: #eee;
+}
+
+/* RIGHT MENU */
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* LINKS */
+.nav-link {
+  color: #ccc;
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  color: #00c853;
+}
+
+/* CART */
+.cart-icon-wrapper {
+  position: relative;
+  font-size: 20px;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  background: gold;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 10px;
+}
+
+/* MOBILE */
+.mobile-toggle {
+  display: none;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.cart-mobile {
+  display: none;
+}
+
+/* MOBILE MENU */
+.mobile-menu {
+  display: none;
+}
+
+/* ================= MOBILE ================= */
+@media (max-width: 768px) {
+
+  .desktop-search,
+  .desktop-menu {
+    display: none;
+  }
+    .mobile-menu .search-container {
+    width: 90%;              /* 👈 reduce width */
+    margin: 0 auto 10px;     /* 👈 center horizontally */
+  }
+
+  .cart-mobile {
+    display: block;
+    margin-left: auto;
+    margin-right: 10px;
+  }
+
+  .mobile-toggle {
+    display: block;
+  }
+
+  .mobile-menu {
+    position: absolute;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    background: #1a1a1a;
+    display: none;
+    flex-direction: column;
+    padding: 15px;
+    gap: 15px;
+  }
+
+  .mobile-menu.active {
+    display: flex;
+  }
+
+  .mobile-menu a {
+    color: white;
+    text-decoration: none;
   }
 }

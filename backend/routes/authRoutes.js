@@ -36,10 +36,18 @@ router.get(
       { expiresIn: "7d" }
     );
 
-    // redirect to frontend
-    res.redirect(
-      `https://karmaass.com/google-success?token=${token}`
-    );
+   const userData = encodeURIComponent(
+  JSON.stringify({
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role
+  })
+);
+
+res.redirect(
+  `https://karmaass.com/google-success?token=${token}&user=${userData}`
+);
   }
 );
 

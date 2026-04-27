@@ -1,91 +1,152 @@
 const axios = require("axios");
+const Order = require("../models/Orders");
 
-let token = "";
+let token = null;
 
-// 🔐 GET TOKEN
+
+/* ---------------- AUTH TOKEN ---------------- */
+
 const generateToken = async () => {
-  try {
-    console.log("email:", process.env.SHIPROCKET_EMAIL);
-    console.log("password:", process.env.SHIPROCKET_PASSWORD);
 
-    const res = await axios.post(
-      "https://apiv2.shiprocket.in/v1/external/auth/login",
-      {
-        email: process.env.SHIPROCKET_EMAIL,
-        password: process.env.SHIPROCKET_PASSWORD
-      }
-    );
-
-    token = res.data.token;
-    return token;
-
-  } catch (err) {
-    console.log("Shiprocket Auth Error:", err.response?.data);
-  }
-};
-
-// 📦 CREATE SHIPMENT
-const createShipment = async (order) => {
-  try {
-    if (!token) await generateToken();
-console.log("ORDER ADDRESS:", order.address);
+ try{
    const response = await axios.post(
-  "https://apiv2.shiprocket.in/v1/external/orders/create/adhoc",
-  {
-    order_id: "TEST123",
-    order_date: "2026-04-14",
+     "https://apiv2.shiprocket.in/v1/external/auth/login",
+     {
+       email: process.env.SHIPROCKET_EMAIL,
+       password: process.env.SHIPROCKET_PASSWORD
+     }
+   );
 
-    pickup_location: "Primary",
+   token = response.data.token;
 
-    // ✅ FULL HARDCODE ADDRESS (WORKING FORMAT)
-    billing_customer_name: "Test User",
-    billing_last_name: "",
+ }catch(err){
+   console.error("Token Error:", err.response?.data || err.message);
+   throw err;
+ }
 
-    billing_address: "MG Road",
-    billing_address_2: "House 123",
-
-    billing_city: "Indore",
-    billing_pincode: "452001",
-    billing_state: "Madhya Pradesh",
-    billing_country: "India",
-
-    billing_email: "testuser@gmail.com",
-    billing_phone: "9876543210",
-
-    shipping_is_billing: true,
-
-    // ✅ ITEMS
-    order_items: [
-      {
-        name: "Test Product",
-        sku: "SKU123",
-        units: 1,
-        selling_price: 100
-      }
-    ],
-
-    payment_method: "Prepaid",
-
-    sub_total: 100,
-
-    // ✅ DIMENSIONS
-    length: 10,
-    breadth: 10,
-    height: 10,
-    weight: 0.5
-  },
-  {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  }
-);
-    return response.data;
-
-  } catch (err) {
-    console.log("Shiprocket Error:", err.response?.data);
-    throw err;
-  }
 };
+
+
+
+/* ---------------- CREATE SHIPMENT ---------------- */
+
+const createShipment = async (order) => {
+
+ if(!token){
+   await generateToken();
+ }
+
+ const payload = {
+   order_id: String(order._id),
+
+   order_date: new Date()
+      .toISOString()
+      .slice(0,19)
+      .replace("T"," "),
+
+   pickup_location:"work",
+
+   billing_customer_name:
+      order.address.name,
+
+   billing_last_name:"",
+
+   billing_address:
+      order.address.addressLine,
+
+   billing_address_2:
+      order.address.houseNo,
+
+   billing_city:
+      order.address.city,
+
+   billing_pincode:
+      String(order.address.pincode),
+
+   billing_state:
+      order.address.state,
+
+   billing_country:"India",
+
+   billing_email:
+      "customer@test.com", // replace if you store email
+
+   billing_phone:
+      String(order.address.phone),
+
+   shipping_customer_name:
+      order.address.name,
+
+   shipping_last_name:"",
+
+   shipping_address:
+      order.address.addressLine,
+
+   shipping_address_2:
+      order.address.houseNo,
+
+   shipping_city:
+      order.address.city,
+
+   shipping_pincode:
+      String(order.address.pincode),
+
+   shipping_state:
+      order.address.state,
+
+   shipping_country:"India",
+
+   shipping_email:
+      "customer@test.com",
+
+   shipping_phone:
+      String(order.address.phone),
+
+   shipping_is_billing:false,
+
+   order_items:
+      order.items.map(item=>({
+        name:item.name,
+        sku:item.productId || "SKU001",
+        units:item.quantity,
+        selling_price:item.price
+      })),
+
+   payment_method:
+      order.paymentMethod==="ONLINE"
+      ? "Prepaid"
+      : "COD",
+
+   sub_total: order.totalAmount,
+
+   length:10,
+   breadth:10,
+   height:10,
+   weight:1
+ };
+
+
+ console.log(
+   "SHIPMENT PAYLOAD:",
+   JSON.stringify(payload,null,2)
+ );
+
+
+ const response = await axios.post(
+   "https://apiv2.shiprocket.in/v1/external/orders/create/adhoc",
+   payload,
+   {
+      headers:{
+        Authorization:`Bearer ${token}`,
+        "Content-Type":"application/json"
+      }
+   }
+ );
+
+ return response.data;
+};
+
+
+
 
 module.exports = { generateToken, createShipment };

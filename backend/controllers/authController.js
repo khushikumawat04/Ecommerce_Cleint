@@ -20,11 +20,51 @@ exports.register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Check user exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    // Validate fields
+    if (!name || !email || !password) {
       return res.status(400).json({
-        message: "User already exists",
+        success: false,
+        message: "All fields are required"
+      });
+    }
+
+    const emailRegex = /^\S+@\S+\.\S+$/;
+
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format"
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 6 characters"
+      });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // Check existing user
+    const existingUser = await User.findOne({
+      email: normalizedEmail
+    });
+
+    if (existingUser) {
+
+      // If user exists via Google
+      if (existingUser.provider === "google") {
+        return res.status(400).json({
+          success: false,
+          message:
+            "This email is registered using Google Sign-In. Please login with Google."
+        });
+      }
+
+      return res.status(400).json({
+        success: false,
+        message: "User already exists"
       });
     }
 
@@ -34,68 +74,127 @@ exports.register = async (req, res) => {
     // Create user
     const user = await User.create({
       name,
-      email,
+      email: normalizedEmail,
       password: hashedPassword,
+      provider: "local"
     });
 
-    // Generate token
     const token = generateToken(user);
 
-    res.status(201).json({
-      success: true,
-      token,
-      user,
-    });
-
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: err.message,
-    });
-  }
-};
-
-// 🔑 LOGIN
-
-
-exports.login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(400).json({ message: "User not found" });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
-      return res.status(400).json({ message: "Invalid password" });
-    }
-
-    // ✅ create token with role
-    const token = jwt.sign(
-      {
-       _id: user._id, // 👈 use _id everywhere
-        role: user.role
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
-
-    res.json({
+    return res.status(201).json({
       success: true,
       token,
       user: {
         _id: user._id,
+        name: user.name,
         email: user.email,
         role: user.role
       }
     });
 
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error(err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error. Please try again later."
+    });
+  }
+};
+// LOGIN
+exports.login = async (req, res) => {
+  try {
+
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success:false,
+        message:"Email and password are required"
+      });
+    }
+
+    const emailRegex = /^\S+@\S+\.\S+$/;
+
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success:false,
+        message:"Invalid email format"
+      });
+    }
+
+    const user = await User.findOne({
+      email: email.toLowerCase().trim()
+    });
+    // console.log("User found:", user); // 👈 add this
+
+    if (!user) {
+      return res.status(404).json({
+        success:false,
+        message:"User not found"
+      });
+    }
+
+    // Google account trying password login
+    if (
+      user.provider === "google" ||
+      !user.password
+    ) {
+      return res.status(400).json({
+        success:false,
+        message:
+          "This account uses Google Sign-In. Continue with Google."
+      });
+    }
+
+    let isMatch = false;
+
+    try {
+      isMatch = await bcrypt.compare(
+        password,
+        user.password
+      );
+    } catch (error) {
+      return res.status(400).json({
+        success:false,
+        message:"Invalid account password setup"
+      });
+    }
+
+    if (!isMatch) {
+      return res.status(401).json({
+        success:false,
+        message:"Invalid password"
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        _id: user._id,
+        role: user.role
+      },
+      process.env.JWT_SECRET,
+      { expiresIn:"7d" }
+    );
+
+    return res.status(200).json({
+      success:true,
+      token,
+      user: {
+    _id: user._id,
+    name: user.name,   // 🔥 ADD THIS
+    email: user.email,
+    role: user.role
+  }
+    });
+
+  } catch(err) {
+    console.error(err);
+
+    return res.status(500).json({
+      success:false,
+      message:"Server error. Please try again later."
+    });
   }
 };
 

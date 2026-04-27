@@ -2,9 +2,10 @@ const express = require("express");
 const router = express.Router();
 const protect = require("../middleware/authMiddleware");
 const Order= require("../models/Orders");
-const sendEmail = require("../utils/sendEmail");
+const sendEmail = require("../Utils/SendEmail");
 const User = require("../models/User");
 const  formatDate  = require("../Utils/FormateDate");
+const Offer = require("../models/Offer");
 // Protected route
 router.post("/checkout", protect, (req, res) => {
   res.json({
@@ -20,102 +21,160 @@ router.post("/checkout", protect, (req, res) => {
 // ✅ CREATE ORDER
 // routes/orderRoutes.js
 
-router.post("/create", protect, async (req, res) => {
-  try {
-    const { items, total, address, paymentMethod } = req.body;
-    console.log("userId"+ req.user._id);
+router.post("/create", protect, async (req,res)=>{
+try{
 
-    const newOrder = new Order({
-            userId: req.user._id, // 👈 THIS MUST WORK
-      items,
-      totalAmount: total,
-      address,
-      paymentMethod,
-      paymentStatus: "pending",
-      orderStatus: "created"
-    });
+const {
+items,
+total,
+address,
+paymentMethod,
+paymentStatus="pending",
+orderStatus="created",
+paymentId,
+subtotal,
+discount,
+couponCode
+}=req.body;
 
-    await newOrder.save();
-     // ✅ EMAIL (SAFE TRY-CATCH 🔥)
-      // ✅ GET USER
-    const user = await User.findById(req.user._id);
-   try {
-  await sendEmail(
-    user.email,
-    "Your Order is Confirmed 🛍️ | Karmaas",
-    `
-    <div style="font-family: Arial, sans-serif; background:#f6f6f6; padding:20px;">
-      
-      <div style="max-width:600px; margin:auto; background:#ffffff; border-radius:10px; overflow:hidden;">
-        
-        <!-- HEADER -->
-        <div style="background:#2e7d32; color:#fff; padding:20px; text-align:center;">
-          <h2 style="margin:0;">Karmaas 🌿</h2>
-          <p style="margin:5px 0 0;">Healthy Living Store</p>
-        </div>
+/* ---------- COUPON REVALIDATION ---------- */
 
-        <!-- BODY -->
-        <div style="padding:20px; color:#333;">
-          
-          <h3>Hi ${user.name}, 👋</h3>
-          
-          <p>
-            Thank you for your order! Your purchase has been successfully placed 🎉
-          </p>
+let verifiedDiscount = discount || 0;
+let verifiedTotal = total;
 
-          <div style="background:#f1f1f1; padding:15px; border-radius:8px; margin:15px 0;">
-            <p><strong>Order ID:</strong> ${newOrder._id}</p>
-            <p><strong>Total Amount:</strong> ₹${total}</p>
-            <p><strong>Payment Method:</strong> ${paymentMethod}</p>
-          </div>
+if (couponCode) {
 
-          <p>
-            We’re preparing your order and will notify you once it's shipped 🚚
-          </p>
+const offer = await Offer.findOne({
+code: couponCode.toUpperCase(),
+active: true
+});
 
-          <!-- BUTTON -->
-          <div style="text-align:center; margin:20px 0;">
-            <a href="https://karmaass.com" 
-              style="background:#2e7d32; color:#fff; padding:12px 20px; text-decoration:none; border-radius:5px;">
-              Visit Our Store
-            </a>
-          </div>
+if(offer){
 
-          <p>
-            If you have any questions, feel free to contact our support team.
-          </p>
+verifiedDiscount =
+(subtotal * offer.discountPercent) / 100;
 
-          <p>Thanks for shopping with us ❤️</p>
+verifiedTotal =
+subtotal - verifiedDiscount;
 
-          <p><strong>Karmaas Team</strong></p>
-        </div>
-
-        <!-- FOOTER -->
-        <div style="background:#fafafa; padding:15px; text-align:center; font-size:12px; color:#777;">
-          <p>© 2026 Karmaas. All rights reserved.</p>
-          <p>
-            <a href="https://karmaass.com" style="color:#2e7d32;">www.karmaass.com</a>
-          </p>
-        </div>
-
-      </div>
-
-    </div>
-    `
-  );
-} catch (emailErr) {
-  console.log("Email failed ❌ but order created ✅", emailErr.message);
 }
 
+}
+/* ---------- THEN SAVE ORDER ---------- */
 
-    res.json({
-      success: true,
-      orderId: newOrder._id
-    });
+const order = await Order.create({
+userId:req.user._id,
+items,
+totalAmount: verifiedTotal,
+address,
+paymentMethod,
+paymentStatus,
+orderStatus,
+razorpayPaymentId: paymentId || null,
+subtotal,
+discount: verifiedDiscount,
+couponCode
+});
 
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+const user = await User.findById(req.user._id);
+
+
+// EMAILS (don't fail order if email fails)
+try{
+
+const adminSubject =
+paymentMethod==="COD"
+? `🛒 New COD Order #${order._id}`
+: `💳 New Prepaid Order #${order._id}`;
+
+await Promise.all([
+
+// Customer Email
+sendEmail(
+user.email,
+"Order Confirmed 🛍️ | Karmaas",
+`
+<div style="font-family:Arial;background:#F1F1F1;padding:20px;">
+<div style="max-width:600px;margin:auto;background:#fff;border-radius:12px;overflow:hidden;">
+<div style="background:#00C853;color:#fff;padding:20px;text-align:center;">
+<h2>Karmaas 🌿</h2>
+</div>
+
+<div style="padding:20px;color:#212121;">
+<h3>Hi ${user.name},</h3>
+
+<p>Your order has been placed successfully 🎉</p>
+
+<p>
+<b>Order ID:</b> ${order._id}<br/>
+<b>Total:</b> ₹${total}<br/>
+<b>Payment:</b> ${paymentMethod}
+</p>
+
+<p>We'll notify you when your order ships 🚚</p>
+
+</div>
+</div>
+</div>
+`
+),
+
+// Admin Email
+sendEmail(
+process.env.EMAIL_USER,
+adminSubject,
+`
+<div style="font-family:Arial;background:#F1F1F1;padding:20px;">
+<div style="max-width:600px;margin:auto;background:#fff;border-radius:12px;overflow:hidden;">
+
+<div style="background:#00C853;color:#fff;padding:20px;text-align:center;">
+<h2>New Order Received 🌿</h2>
+</div>
+
+<div style="padding:20px;color:#212121;">
+
+<p><b>Order:</b> ${order._id}</p>
+<p><b>Customer:</b> ${user.name}</p>
+<p><b>Phone:</b> ${address.phone}</p>
+
+<p>
+<b>Address:</b><br/>
+${address.houseNo}, ${address.addressLine}<br/>
+${address.city}, ${address.state} - ${address.pincode}
+</p>
+
+<ul>
+${items.map(i=>`
+<li>${i.name} × ${i.quantity} — ₹${i.price}</li>
+`).join("")}
+</ul>
+
+<h3 style="color:#00C853;">
+Total: ₹${total}
+</h3>
+
+</div>
+</div>
+</div>
+`
+)
+
+]);
+
+}catch(emailErr){
+console.log("Email failed but order created:",emailErr.message);
+}
+
+res.json({
+success:true,
+orderId:order._id
+});
+
+}catch(err){
+res.status(500).json({
+error:err.message
+});
+}
 });
 
 
@@ -161,104 +220,172 @@ router.put("/cancel/:id", protect, async (req, res) => {
     const order = await Order.findById(req.params.id);
 
     if (!order) {
-      return res.status(404).json({ message: "Order not found" });
+      return res.status(404).json({
+        message: "Order not found"
+      });
     }
 
+    // Only owner can cancel
     if (order.userId.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "Not authorized" });
+      return res.status(403).json({
+        message: "Not authorized"
+      });
     }
 
+    // Prevent cancel after shipped/delivered
     if (["shipped", "delivered"].includes(order.orderStatus)) {
       return res.status(400).json({
         message: "Order cannot be cancelled now"
       });
     }
 
-    // ✅ UPDATE ORDER
+    // Update order
     order.orderStatus = "cancelled";
-    order.cancelReason = req.body.reason;
+    order.cancelReason = req.body.reason || "Not specified";
     order.cancelledAt = new Date();
 
     await order.save();
 
-    // ✅ GET USER
+    // Get customer
     const user = await User.findById(req.user._id);
 
-    // ✅ SEND EMAIL (SAFE)
+    // -----------------------------
+    // EMAILS (Customer + Admin)
+    // -----------------------------
     try {
-      await sendEmail(
-        user.email,
-        "Order Cancelled ❌ | Karmaas",
-        `
-        <div style="font-family: Arial, sans-serif; background:#f6f6f6; padding:20px;">
-          
-          <div style="max-width:600px; margin:auto; background:#ffffff; border-radius:10px; overflow:hidden;">
-            
-            <!-- HEADER -->
-            <div style="background:#c62828; color:#fff; padding:20px; text-align:center;">
-              <h2 style="margin:0;">Karmaas 🌿</h2>
-              <p style="margin:5px 0 0;">Order Cancelled</p>
+
+      const customerEmailHtml = `
+      <div style="font-family:Arial;background:#f6f6f6;padding:20px;">
+        <div style="max-width:600px;margin:auto;background:#fff;border-radius:10px;overflow:hidden;">
+
+          <div style="background:#c62828;color:#fff;padding:20px;text-align:center;">
+            <h2 style="margin:0;">Karmaas 🌿</h2>
+            <p style="margin-top:8px;">Order Cancelled</p>
+          </div>
+
+          <div style="padding:25px;color:#333;">
+
+            <h3>Hi ${user.name}, 👋</h3>
+
+            <p>Your order has been successfully cancelled ❌</p>
+
+            <div style="background:#f5f5f5;padding:15px;border-radius:8px;">
+              <p><strong>Order ID:</strong> ${order._id}</p>
+              <p><strong>Cancelled On:</strong> ${new Date(
+                order.cancelledAt
+              ).toLocaleString()}</p>
+              <p><strong>Reason:</strong> ${order.cancelReason}</p>
             </div>
 
-            <!-- BODY -->
-            <div style="padding:20px; color:#333;">
-              
-              <h3>Hi ${user.name}, 👋</h3>
-              
-              <p>
-                Your order has been successfully cancelled ❌
-              </p>
+            <p style="margin-top:15px;">
+              If payment was made, refund (if applicable) will be processed shortly 💰
+            </p>
 
-              <div style="background:#f1f1f1; padding:15px; border-radius:8px; margin:15px 0;">
-                <p><strong>Order ID:</strong> ${order._id}</p>
-                <p><strong>Cancelled On:</strong> ${new Date(order.cancelledAt).toLocaleString()}</p>
-                <p><strong>Reason:</strong> ${order.cancelReason || "Not specified"}</p>
-              </div>
-
-              <p>
-                If you have already paid, your refund (if applicable) will be processed shortly 💰
-              </p>
-
-              <!-- BUTTON -->
-              <div style="text-align:center; margin:20px 0;">
-                <a href="https://karmaass.com" 
-                  style="background:#2e7d32; color:#fff; padding:12px 20px; text-decoration:none; border-radius:5px;">
-                  Continue Shopping
-                </a>
-              </div>
-
-              <p>
-                We hope to serve you again soon ❤️
-              </p>
-
-              <p><strong>Karmaas Team</strong></p>
+            <div style="text-align:center;margin:25px 0;">
+              <a href="https://karmaass.com"
+                style="background:#2e7d32;color:#fff;text-decoration:none;padding:12px 20px;border-radius:6px;">
+                Continue Shopping
+              </a>
             </div>
 
-            <!-- FOOTER -->
-            <div style="background:#fafafa; padding:15px; text-align:center; font-size:12px; color:#777;">
-              <p>© 2026 Karmaas. All rights reserved.</p>
-              <p>
-                <a href="https://karmaass.com" style="color:#2e7d32;">www.karmaass.com</a>
-              </p>
+            <p>We hope to serve you again ❤️</p>
+
+            <p><strong>Karmaas Team</strong></p>
+
+          </div>
+
+          <div style="background:#fafafa;padding:15px;text-align:center;font-size:12px;color:#777;">
+            © 2026 Karmaas
+          </div>
+
+        </div>
+      </div>
+      `;
+
+
+      const adminEmailHtml = `
+      <div style="font-family:Arial;background:#f6f6f6;padding:20px;">
+        <div style="max-width:600px;margin:auto;background:#fff;border-radius:10px;overflow:hidden;">
+
+          <div style="background:#b71c1c;color:#fff;padding:20px;text-align:center;">
+            <h2 style="margin:0;">Customer Cancelled Order Alert ❌</h2>
+          </div>
+
+          <div style="padding:25px;color:#333;">
+
+            <h3>Order Cancelled by Customer</h3>
+
+            <div style="background:#f5f5f5;padding:15px;border-radius:8px;">
+              <p><strong>Order ID:</strong> ${order._id}</p>
+              <p><strong>Customer:</strong> ${user.name}</p>
+              <p><strong>Email:</strong> ${user.email}</p>
+              <p><strong>Cancelled On:</strong> ${new Date(
+                order.cancelledAt
+              ).toLocaleString()}</p>
+              <p><strong>Reason:</strong> ${order.cancelReason}</p>
+              <p><strong>Total:</strong> ₹${order.totalAmount || order.total || "-"}</p>
+
+              ${
+                order.items?.length
+                  ? `
+                <p><strong>Cancelled Items:</strong></p>
+                <ul>
+                  ${order.items
+                    .map(
+                      item =>
+                        `<li>${item.name} x ${item.quantity}</li>`
+                    )
+                    .join("")}
+                </ul>
+              `
+                  : ""
+              }
+
+            </div>
+
+            <div style="text-align:center;margin:25px 0;">
+              <a href="https://karmaass.com/admin/orders"
+                style="background:#2e7d32;color:#fff;text-decoration:none;padding:12px 20px;border-radius:6px;">
+                View Orders
+              </a>
             </div>
 
           </div>
 
         </div>
-        `
-      );
+      </div>
+      `;
+
+
+      // Send both emails without breaking if one fails
+      await Promise.allSettled([
+        sendEmail(
+          user.email,
+          "Order Cancelled ❌ | Karmaas",
+          customerEmailHtml
+        ),
+
+        sendEmail(
+          "karmaas.in@gmail.com", // Admin Email
+          "Customer Cancelled Order Alert ❌",
+          adminEmailHtml
+        )
+      ]);
+
     } catch (emailErr) {
-      console.log("Cancel email failed ❌ but order cancelled ✅", emailErr.message);
+      console.log("Email sending issue:", emailErr.message);
     }
 
-    // ✅ RESPONSE
-    res.json({
+    return res.json({
       success: true,
       message: "Order cancelled successfully"
     });
 
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error(err);
+    return res.status(500).json({
+      error: err.message
+    });
   }
 });
 module.exports = router;

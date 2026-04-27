@@ -50,6 +50,11 @@ const productSchema = new mongoose.Schema({
   price: { type: Number, required: true },
   originalPrice: Number,
   discountPercent: Number,
+  shippingCharges:{
+type:Number,
+default:0
+},
+
 
   // ARRAYS (VERY IMPORTANT)
   highlights: [String],
@@ -63,7 +68,7 @@ const productSchema = new mongoose.Schema({
     skinUse: String,
     other: String
   },
-
+  whyChoose: [String],
   // PRODUCT DETAILS (GENERIC OBJECT)
   details: {
     brand: String,
@@ -97,6 +102,11 @@ const productSchema = new mongoose.Schema({
   stock: { type: Number, default: 0 },
   inStock: { type: Boolean, default: true },
 
+  offers:[
+{
+type:mongoose.Schema.Types.ObjectId,
+ref:"Offer"
+}],
   createdAt: {
     type: Date,
     default: Date.now

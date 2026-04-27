@@ -4,78 +4,77 @@ const crypto = require("crypto");
 
 
 // CREATE RAZORPAY ORDER
-exports.createOrder = async (req, res) => {
-  try {
-    let { amount, orderId } = req.body;
+exports.createOrder = async(req,res)=>{
+try{
 
-    // 🔥 FORCE VALID NUMBER
-    amount = Number(amount);
+let { amount } = req.body;
 
-    if (!amount || amount <= 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid amount"
-      });
-    }
+amount=Number(amount);
 
-    const options = {
-      amount: Math.round(amount * 100), // 🔥 SAFE
-      currency: "INR",
-      receipt: "receipt_" + orderId
-    };
+if(!amount || amount<=0){
+return res.status(400).json({
+success:false,
+message:"Invalid amount"
+});
+}
 
-    const razorOrder = await razorpay.orders.create(options);
-
-    await Order.findByIdAndUpdate(orderId, {
-      razorpayOrderId: razorOrder.id
-    });
-
-    res.json(razorOrder);
-
-  } catch (err) {
-    console.log("RAZORPAY ERROR 👉", err);
-    res.status(500).json({
-      success: false,
-      message: err.message
-    });
-  }
+const options={
+amount:Math.round(amount*100),
+currency:"INR",
+receipt:"receipt_"+Date.now()
 };
 
+const razorOrder=
+await razorpay.orders.create(options);
 
-exports.verifyPayment = async (req, res) => {
-  try {
-    const {
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature,
-      orderId
-    } = req.body;
+res.json(razorOrder);
 
-    const body = razorpay_order_id + "|" + razorpay_payment_id;
+}catch(err){
+res.status(500).json({
+success:false,
+message:err.message
+})
+}
+}
 
-    const expectedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEYSECRET)
-      .update(body)
-      .digest("hex");
+exports.verifyPayment=async(req,res)=>{
+try{
 
-    if (expectedSignature === razorpay_signature) {
+const {
+razorpay_order_id,
+razorpay_payment_id,
+razorpay_signature
+}=req.body;
 
-      await Order.findByIdAndUpdate(orderId, {
-        paymentStatus: "paid",
-        orderStatus: "confirmed",
-        razorpayPaymentId: razorpay_payment_id
-      });
+const body=
+razorpay_order_id+"|"+razorpay_payment_id;
 
-      return res.json({ success: true });
+const expectedSignature=
+crypto
+.createHmac(
+"sha256",
+process.env.RAZORPAY_KEYSECRET
+)
+.update(body)
+.digest("hex");
 
-    } else {
-      return res.status(400).json({
-        success: false,
-        message: "Signature mismatch"
-      });
-    }
+if(expectedSignature===razorpay_signature){
 
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+return res.json({
+success:true,
+paymentId:razorpay_payment_id
+});
+
+}
+
+return res.status(400).json({
+success:false,
+message:"Signature mismatch"
+});
+
+}catch(err){
+res.status(500).json({
+error:err.message
+});
+}
 };

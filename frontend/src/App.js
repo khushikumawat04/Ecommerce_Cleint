@@ -12,7 +12,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import MyOrders from './pages/MyOrders';
 import OrderDetails from './pages/OrderDetails';
-import AdminDashboard from './pages/AdminDashboard';
+import AdminDashboard from './Admin/Pages/AdminDashboard';
 import GoogleSuccess from './pages/GoogleSuccess';
 import Profile from './pages/Profile';
 import PrivacyPolicy from './pages/PrivacyPolicy';
@@ -22,6 +22,11 @@ import ShippingPolicy from './pages/ShippingPolicy';
 import AboutUs from './pages/AboutUs';
 import Contact from './pages/Contact';
 import WhatsAppFloat from './componenets/WhatsAppFloat';
+import Products from './Admin/Pages/Products';
+import AddProduct from './Admin/Pages/AddProduct';
+import Dashboard from './Admin/Pages/Dashboard';
+import EditProduct from './Admin/Pages/EditProduct';
+import OfferAdmin from './Admin/Pages/OfferAdmin';  
 function App() {
   return (
     <BrowserRouter>
@@ -56,14 +61,41 @@ function App() {
   }
 />
 
+
+{/* Admin Route */}
 <Route
   path="/admin"
   element={
     <AdminRoute>
-      <AdminDashboard />
+      <Dashboard />
     </AdminRoute>
   }
 />
+<Route path="/admin/products" element={
+    <AdminRoute>
+      <Products/>
+    </AdminRoute>
+  } />
+  <Route path="/admin/add-product" element={
+    <AdminRoute>
+      <AddProduct/>
+    </AdminRoute>
+  } />
+  <Route path="/admin/edit-product/:id" element={
+    <AdminRoute>
+      <EditProduct />
+    </AdminRoute>
+  } />
+  <Route path="/admin/orders" element={
+    <AdminRoute>
+      <AdminDashboard/>
+    </AdminRoute>
+  } />
+   <Route path="/admin/offers" element={
+    <AdminRoute>
+      <OfferAdmin/>
+    </AdminRoute>
+  } />
 
    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-conditions" element={<Terms />} />

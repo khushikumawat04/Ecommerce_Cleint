@@ -10,6 +10,7 @@ function Home() {
   const [products, setProducts] = useState([]);
    const baseURL = process.env.REACT_APP_API_URL;
    const [category, setCategory] = useState("All");
+   const [offers, setOffers] = useState([]);
 const isSimilar = (a, b) => {
   return a.includes(b) || b.includes(a);
 };
@@ -43,6 +44,15 @@ const filteredProducts = products.filter(product => {
   return matchesSearch && matchesCategory;
 });
 
+//         useEffect(()=>{
+
+// axios
+// .get(`${baseURL}/api/offers`)
+// .then(res=>{
+// setOffers(res.data);
+// })
+
+// },[])
 
   return (
     <div className="main-bg">
@@ -60,6 +70,12 @@ const filteredProducts = products.filter(product => {
         <button className="btn btn-green mt-3">
           Shop Now
         </button>
+        {/* {offers.map(o=>(
+<div key={o._id}>
+{o.title}
+</div>
+))} */}
+
       </div>
   
       {/* PRODUCTS */}

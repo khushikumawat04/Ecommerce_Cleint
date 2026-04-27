@@ -1,0 +1,117 @@
+
+/* MAIN CARD */
+.product-form {
+  background: var(--white);
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+}
+
+/* HEADINGS */
+.product-form h3,
+.product-form h5 {
+  color: var(--primary-green);
+  font-weight: 600;
+  margin-top: 20px;
+}
+
+/* INPUTS */
+.product-form input,
+.product-form textarea {
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  padding: 10px;
+  transition: 0.3s;
+}
+
+.product-form input:focus,
+.product-form textarea:focus {
+  border-color: var(--primary-green);
+  box-shadow: 0 0 0 0.2rem rgba(0, 200, 83, 0.15);
+}
+
+/* BUTTONS */
+.btn-primary-custom {
+  background: var(--primary-green);
+  border: none;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: 0.3s;
+}
+
+.btn-primary-custom:hover {
+  background: var(--light-green);
+}
+
+/* ADD BUTTON */
+.btn-add {
+  background: var(--gold);
+  border: none;
+  color: black;
+  font-weight: 500;
+  border-radius: 6px;
+}
+
+/* REMOVE BUTTON */
+.btn-remove {
+  background: #e53935;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  width: 40px;
+}
+
+/* ARRAY ITEM ROW */
+.array-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+/* SECTION SPACING */
+.section {
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed #ddd;
+}
+
+/* SAVE BUTTON */
+.save-btn {
+  width: 100%;
+  background: var(--primary-green);
+  color: white;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.save-btn:hover {
+  background: var(--light-green);
+}
+
+/* LABEL STYLE */
+label {
+  font-weight: 500;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.btn-warning {
+  background: #FFC107;
+  border: none;
+  color: black;
+  font-weight: 500;
+  border-radius: 8px;
+}
+
+.btn-warning:hover {
+  background: #ffb300;
+}
+
+small {
+  font-size: 12px;
+}

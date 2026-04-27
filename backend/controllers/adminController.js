@@ -1,8 +1,10 @@
 const Order = require("../models/Orders");
-const {createShipment}  = require("../Services/shiprocket");
+const {createShipment,generateToken}  = require("../Services/shiprocket");
 const User = require("../models/User");
-const sendEmail = require("../utils/sendEmail");
+const sendEmail = require("../Utils/SendEmail");
 const formatDate = require("../Utils/FormateDate");
+const axios = require("axios");
+const Product = require("../models/Product");
 
 // 🔥 GET ALL ORDERS (ADMIN)
 exports.getAllOrders = async (req, res) => {
@@ -21,131 +23,521 @@ exports.getAllOrders = async (req, res) => {
   }
 };
 
-// 🔥 UPDATE ORDER STATUS
-
-exports.updateOrderStatus = async (req, res) => {
-  console.log("Order status update API hit");
-
+// Get all users (Admin)
+// Get total number of users except admin
+exports.getUsersCount = async (req, res) => {
   try {
-    const { status } = req.body;
+    const totalUsers = await User.countDocuments({
+      role: { $ne: "admin" }
+    });
 
-    // ✅ FIND ORDER
-    const order = await Order.findById(req.params.id);
+    res.status(200).json({
+      success: true,
+      totalUsers
+    });
 
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
-    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching users count"
+    });
+  }
+};
 
-    // ❌ Prevent update if cancelled
-    if (order.orderStatus === "cancelled") {
-      return res.status(400).json({
-        message: "Cancelled order cannot be updated"
-      });
-    }
+exports.updateOrderStatus = async (req,res)=>{
+try{
 
-    // ✅ UPDATE STATUS
-    order.orderStatus = status;
+console.log("Update hit");
 
-    // ✅ SET TIMESTAMPS
-    if (status === "shipped") {
-      order.shippedAt = formatDate(new Date());
-    }
+const status = req.body.status?.toLowerCase().trim();
 
-    if (status === "delivered") {
-      order.deliveredAt = formatDate(new Date());
-    }
+const order = await Order.findById(req.params.id);
 
-    await order.save();
+if(!order){
+ return res.status(404).json({
+  message:"Order not found"
+ });
+}
 
-    // ✅ GET USER
-    const user = await User.findById(order.userId);
+if(order.orderStatus==="cancelled"){
+ return res.status(400).json({
+   message:"Cancelled order cannot be updated"
+ });
+}
 
-    // ================= EMAIL TRIGGERS =================
+// update
+order.orderStatus=status;
 
-    try {
+if(status==="shipped"){
+ order.shippedAt=new Date();
+}
 
-      // 📦 SHIPPED EMAIL
-      if (status === "shipped") {
-        await sendEmail(
-          user.email,
-          "Order Shipped 🚚 | Karmaas",
-          `
-          <h2>Hi ${user.name},</h2>
-          <p>Your order <b>${order._id}</b> has been shipped 🚚</p>
-          <p>It will reach you soon.</p>
-          <a href="https://karmaass.com">Track Order</a>
-          `
-        );
-      }
+if(status==="delivered"){
+ order.deliveredAt=new Date();
+}
 
-      // 🎉 DELIVERED EMAIL
-      if (status === "delivered") {
-        await sendEmail(
-          user.email,
-          "Order Delivered 🎉 | Karmaas",
-          `
-          <div style="font-family: Arial; padding:20px;">
-            <h2>Hi ${user.name}, 👋</h2>
+await order.save();
 
-            <p>Your order has been successfully delivered 🎉</p>
+const user=await User.findById(order.userId);
 
+if(!user){
+ return res.status(404).json({
+   message:"User not found"
+ });
+}
+
+try{
+
+if (status === "shipped") {
+  console.log("Sending shipped email");
+
+  await sendEmail(
+    user.email,
+    "Your Order Has Been Shipped 🚚 | Karmaas",
+    `
+    <div style="font-family:Arial;background:#f6f6f6;padding:20px;">
+
+      <div style="max-width:600px;margin:auto;background:#fff;border-radius:10px;overflow:hidden;">
+
+        <!-- HEADER -->
+        <div style="background:#1e88e5;color:#fff;padding:20px;text-align:center;">
+          <h2 style="margin:0;">KARMAA'S 🌿</h2>
+          <p style="margin-top:5px;">Your Order is On the Way</p>
+        </div>
+
+        <!-- BODY -->
+        <div style="padding:25px;color:#333;">
+
+          <h3>Hi ${user.name}, 👋</h3>
+
+          <p>Great news! Your order has been <b>shipped successfully</b> 🚚</p>
+
+          <div style="background:#f5f5f5;padding:15px;border-radius:8px;margin:15px 0;">
             <p><strong>Order ID:</strong> ${order._id}</p>
-            <p><strong>Date:</strong> ${formatDate(new Date())}</p>
+            <p><strong>Shipped On:</strong> ${new Date().toLocaleString()}</p>
+            <p><strong>Status:</strong> Shipped 🚚</p>
+          </div>
 
-            <p>We hope you loved your purchase ❤️</p>
+          <p>Your package is on its way and will reach you soon. You will receive updates as it moves.</p>
 
+          <div style="text-align:center;margin:20px 0;">
             <a href="https://karmaass.com"
-              style="background:#2e7d32; color:white; padding:10px 15px; text-decoration:none;">
+              style="background:#2e7d32;color:#fff;padding:12px 18px;text-decoration:none;border-radius:6px;">
+              Track Order
+            </a>
+          </div>
+
+          <p>Thank you for shopping with us ❤️</p>
+
+          <p><b>Karmaas Team</b></p>
+
+        </div>
+
+      </div>
+    </div>
+    `
+  );
+}
+
+
+if (status === "delivered") {
+  console.log("Sending delivered email");
+
+  await sendEmail(
+    user.email,
+    "Order Delivered 🎉 | Karmaas",
+    `
+    <div style="font-family:Arial;background:#f6f6f6;padding:20px;">
+
+      <div style="max-width:600px;margin:auto;background:#fff;border-radius:10px;overflow:hidden;">
+
+        <!-- HEADER -->
+        <div style="background:#2e7d32;color:#fff;padding:20px;text-align:center;">
+          <h2 style="margin:0;">KARMAA'S 🌿</h2>
+          <p style="margin-top:5px;">Order Successfully Delivered</p>
+        </div>
+
+        <!-- BODY -->
+        <div style="padding:25px;color:#333;">
+
+          <h3>Hi ${user.name}, 👋</h3>
+
+          <p>Your order has been <b>delivered successfully</b> 🎉</p>
+
+          <div style="background:#f5f5f5;padding:15px;border-radius:8px;margin:15px 0;">
+            <p><strong>Order ID:</strong> ${order._id}</p>
+            <p><strong>Delivered On:</strong> ${new Date().toLocaleString()}</p>
+            <p><strong>Status:</strong> Delivered 🎉</p>
+          </div>
+
+          <p>We hope you loved your purchase ❤️</p>
+          <p>If you have any feedback, feel free to reach out.</p>
+
+          <div style="text-align:center;margin:20px 0;">
+            <a href="https://karmaass.com"
+              style="background:var(--primary-color);color:#fff;padding:12px 18px;text-decoration:none;border-radius:6px;">
               Shop Again
             </a>
           </div>
-          `
-        );
-      }
 
-    } catch (emailErr) {
-      console.log("Email failed ❌ but status updated ✅");
-    }
+          <p>We look forward to serving you again 🙏</p>
 
-    // ✅ RESPONSE
-    res.json({
-      success: true,
-      message: "Order status updated",
-      order
-    });
+          <p><b>Karmaas Team</b></p>
 
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+        </div>
+
+      </div>
+    </div>
+    `
+  );
+}
+
+}catch(emailErr){
+ console.error("Email error:",emailErr);
+}
+
+res.json({
+success:true,
+message:"Order status updated",
+order
+});
+
+}catch(err){
+console.error(err);
+res.status(500).json({
+error:err.message
+});
+}
 };
 
-// 🚚 SHIP ORDER (REAL)
-exports.shipOrder = async (req, res) => {
+
+/* ---------------- SHIP ORDER ---------------- */
+
+exports.shipOrder = async(req,res)=>{
+try{
+
+ const order = await Order.findById(req.params.id);
+
+ if(!order){
+   return res.status(404).json({
+      success:false,
+      message:"Order not found"
+   });
+ }
+
+
+/* Already shipped check */
+ if(
+    order.orderStatus==="shipped"
+ ){
+   return res.status(400).json({
+      success:false,
+      message:"Order already shipped"
+   });
+ }
+
+
+/* Cancelled check */
+ if(
+    order.orderStatus==="cancelled"
+ ){
+   return res.status(400).json({
+      success:false,
+      message:"Cancelled orders cannot be shipped"
+   });
+ }
+
+
+ const shipment =
+   await createShipment(order);
+
+console.log(JSON.stringify(shipment,null,2))
+
+const awb =
+shipment?.awb_code || "";
+
+const shipmentId =
+shipment?.shipment_id || "";
+
+await Order.findByIdAndUpdate(
+order._id,
+{
+orderStatus:"shipped",
+
+shipmentId: shipmentId,
+
+trackingId: awb,
+awbCode: awb,
+
+/* if courier not assigned yet */
+courier:
+shipment?.courier_name
+? shipment.courier_name
+: "Pending Assignment",
+
+trackingUrl:
+awb
+? `https://shiprocket.co/tracking/${awb}`
+: ""
+}
+);
+
+ return res.json({
+   success:true,
+   message:"Order shipped successfully",
+   shipment
+ });
+
+
+}catch(err){
+
+ console.log(
+  "SHIP ERROR:",
+  JSON.stringify(
+   err.response?.data || err.message,
+   null,
+   2
+  )
+ );
+
+ return res.status(500).json({
+   success:false,
+   message:
+      err.response?.data?.message ||
+      "Shipment failed"
+ });
+
+}
+};
+
+
+
+/* make sure generateToken + token
+exist in this file or import them */
+exports.syncShipment = async (req,res)=>{
+try{
+
+const order = await Order.findById(
+req.params.id
+);
+
+if(!order){
+ return res.status(404).json({
+  success:false,
+  message:"Order not found"
+ });
+}
+
+if(!order.shipmentId){
+ return res.status(400).json({
+  success:false,
+  message:"No shipment id found"
+ });
+}
+
+console.log(
+"Syncing shipment:",
+order.shipmentId
+);
+ console.log(await generateToken())
+
+/* fresh token */
+let token = await generateToken();
+
+let tracking;
+
+
+/* TRACKING CALL */
+try{
+
+tracking = await axios.get(
+`https://apiv2.shiprocket.in/v1/external/courier/track/shipment/${order.shipmentId}`,
+{
+headers:{
+Authorization:`Bearer ${token}`
+}
+}
+);
+
+}catch(err){
+
+/* auto retry if token expired */
+if(err.response?.status===401){
+
+console.log(
+"Token expired. Regenerating..."
+);
+
+token = await generateToken();
+
+
+tracking = await axios.get(
+`https://apiv2.shiprocket.in/v1/external/shipments/${order.shipmentId}`,
+{
+headers:{
+Authorization:`Bearer ${token}`
+}
+}
+);
+
+}else{
+throw err;
+}
+
+}
+
+
+
+console.log(
+"TRACKING RESPONSE:",
+JSON.stringify(
+tracking.data,
+null,
+2
+)
+);
+
+
+const track =
+tracking.data?.tracking_data
+?.shipment_track?.[0] || {};
+
+
+const awb =
+track.awb_code || "";
+
+const courier =
+track.courier_name ||
+order.courier ||
+"Pending Assignment";
+
+
+const shipmentStatus =
+track.current_status ||
+"Processing";
+
+
+
+await Order.findByIdAndUpdate(
+order._id,
+{
+awbCode:awb,
+
+trackingId:awb,
+
+courier:courier,
+
+trackingUrl:
+awb
+? `https://shiprocket.co/tracking/${awb}`
+: "",
+
+shipmentStatus,
+
+awbSyncedAt:new Date()
+}
+);
+
+
+return res.json({
+success:true,
+message:
+awb
+? "Tracking synced successfully"
+: "Shipment exists but AWB not assigned yet"
+});
+
+
+}catch(err){
+
+console.log(
+"====== SYNC ERROR ======"
+);
+
+console.log(
+"Status:",
+err.response?.status
+);
+
+console.log(
+"Data:",
+JSON.stringify(
+err.response?.data,
+null,
+2
+)
+);
+
+console.log(
+"Message:",
+err.message
+);
+
+
+return res.status(500).json({
+success:false,
+message:
+err.response?.data?.message ||
+err.message ||
+"Tracking sync failed"
+});
+
+}
+};
+
+
+// product Management
+
+
+
+
+// CREATE PRODUCT
+exports.createProduct = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id);
-
-    // 🔥 CALL SHIPROCKET
-    const shipment = await createShipment(order);
-
-    console.log("SHIPROCKET RESPONSE:", shipment);
-
-    // ✅ SAVE DETAILS
-    order.orderStatus = "shipped";
-    order.trackingId = shipment?.shipment_id || "N/A";
-    order.courier = shipment?.courier_name || "Shiprocket";
-
-    await order.save();
-
-    res.json({
-      success: true,
-      message: "Shipment created 🚚",
-      shipment
-    });
-
+    const product = await Product.create(req.body);
+    res.status(201).json(product);
   } catch (err) {
-    res.status(500).json({
-      error: err.message
-    });
+    res.status(500).json({ message: err.message });
   }
 };
-// 🧱 STEP 5: UPDATE ORDER
+
+// GET ALL PRODUCTS
+exports.getProducts = async (req, res) => {
+  try {
+    const products = await Product.find();
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// GET SINGLE PRODUCT
+exports.getProduct = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    res.json(product);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// UPDATE PRODUCT
+exports.updateProduct = async (req, res) => {
+  try {
+    const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json(product);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// DELETE PRODUCT
+exports.deleteProduct = async (req, res) => {
+  try {
+    await Product.findByIdAndDelete(req.params.id);
+    res.json({ message: "Product deleted" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

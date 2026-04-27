@@ -15,6 +15,62 @@ function Checkout() {
   const [error, setError] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("COD");
 
+
+const [coupon,setCoupon]=useState(()=>{
+const saved=localStorage.getItem("appliedCoupon");
+return saved ? JSON.parse(saved) : null;
+});
+
+const [discount,setDiscount]=useState(()=>{
+return Number(localStorage.getItem("discount")) || 0;
+});
+const [autoDiscount,setAutoDiscount] = useState(()=>{
+return Number(
+localStorage.getItem("autoDiscount")
+) || 0;
+});
+
+const [bogoDiscount,setBogoDiscount] = useState(()=>{
+return Number(
+localStorage.getItem("bogoDiscount")
+) || 0;
+});
+const finalTotal = Math.max(
+cartTotal - discount - autoDiscount - bogoDiscount,
+0
+);
+useEffect(()=>{
+
+const savedCoupon=
+localStorage.getItem("appliedCoupon");
+
+const savedDiscount=
+localStorage.getItem("discount");
+
+const savedAuto=
+localStorage.getItem("autoDiscount");
+
+const savedBogo=
+localStorage.getItem("bogoDiscount");
+
+if(savedCoupon){
+setCoupon(JSON.parse(savedCoupon));
+}
+
+if(savedDiscount){
+setDiscount(Number(savedDiscount));
+}
+
+if(savedAuto){
+setAutoDiscount(Number(savedAuto));
+}
+
+if(savedBogo){
+setBogoDiscount(Number(savedBogo));
+}
+
+},[]);
+
   const [address, setAddress] = useState({
     name: "",
     phone: "",
@@ -84,117 +140,171 @@ const handleContinue = async () => {
 
   // FINAL ORDER FUNCTION
 const handleFinalOrder = async () => {
-  try {
-    // ================= COD =================
-    if (paymentMethod === "COD") {
+try {
 
-      const res = await fetch(`${baseURL}/api/orders/create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`
-        },
-        body: JSON.stringify({
-         items: cartItems.map(item => ({
-  productId: item._id,
-  name: item.name,
-  price: item.price,
-  quantity: item.quantity,
-  image: item.images?.[0]?.url   // ✅ IMPORTANT FIX
+if(paymentMethod==="COD"){
+
+const res = await fetch(`${baseURL}/api/orders/create`,{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+Authorization:`Bearer ${localStorage.getItem("token")}`
+},
+body:JSON.stringify({
+items: cartItems.map(item=>({
+productId:item._id,
+name:item.name,
+price:item.price,
+quantity:item.quantity,
+image:item.images?.[0]?.url
 })),
-          total: cartTotal,
-          address,
-          paymentMethod: "COD"
-        })
-      });
+// total:cartTotal,
+subtotal: cartTotal,
+discount:
+discount +
+autoDiscount +
+bogoDiscount,
+total: finalTotal,
+couponCode: coupon?.code || null,
+address,
+paymentMethod:"COD"
+})
+});
 
-      const data = await res.json();
+const data=await res.json();
 
-      if (data.success) {
-      toast.success("Order placed successfully! 🎉");
-     setTimeout(() => {
-  clearCart();
-  window.location.href = "/";
-}, 2000); // ⏱️ 2 seconds
-      }
+if(data.success){
+toast.success("Order placed successfully 🎉");
+localStorage.removeItem("appliedCoupon");
+localStorage.removeItem("discount");
+localStorage.removeItem("autoDiscount");
+localStorage.removeItem("bogoDiscount");
 
-    } else {
+setTimeout(()=>{
+clearCart();
+window.location.href="/";
+},2000);
+}
 
-      // ================= STEP 1: CREATE DB ORDER =================
-      const createRes = await fetch(`${baseURL}/api/orders/create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`
-        },
-        body: JSON.stringify({
-      items: cartItems.map(item => ({
-  productId: item._id,
-  name: item.name,
-  price: item.price,
-  quantity: item.quantity,
-  image: item.images?.[0]?.url   // ✅ IMPORTANT FIX
+}
+
+else{
+
+// ONLY create razorpay order first
+const razorRes = await fetch(
+`${baseURL}/api/payment/create-order`,
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+amount: finalTotal * 100 // convert to paise
+})
+}
+);
+
+const razorData = await razorRes.json();
+
+const options={
+key:process.env.REACT_APP_RAZORPAY_KEYID,
+amount:razorData.amount,
+currency:"INR",
+order_id:razorData.id,
+
+handler: async function(response){
+
+// verify payment
+const verifyRes=await fetch(
+`${baseURL}/api/payment/verify`,
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify(response)
+}
+);
+
+const verifyData=await verifyRes.json();
+
+if(verifyData.success){
+
+// NOW create order only after payment success
+const orderRes = await fetch(
+`${baseURL}/api/orders/create`,
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+Authorization:`Bearer ${localStorage.getItem("token")}`
+},
+body:JSON.stringify({
+items: cartItems.map(item=>({
+productId:item._id,
+name:item.name,
+price:item.price,
+quantity:item.quantity,
+image:item.images?.[0]?.url
 })),
-          total: cartTotal,
-          address,
-          paymentMethod: "ONLINE"
-        })
-      });
+// total:cartTotal,a
+subtotal: cartTotal,
+total: finalTotal,
+discount:
+discount +
+autoDiscount +
+bogoDiscount,
+couponCode: coupon?.code || null,
+address,
+paymentMethod:"ONLINE",
+paymentStatus:"Paid",
+paymentId:response.razorpay_payment_id
+})
+}
+);
 
-      const createData = await createRes.json();
-      const orderId = createData.orderId;
+const orderData=await orderRes.json();
 
-      // ================= STEP 2: CREATE RAZORPAY ORDER =================
-      const razorRes = await fetch(`${baseURL}/api/payment/create-order`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount: cartTotal,
-          orderId // 🔥 VERY IMPORTANT
-        })
-      });
+if(orderData.success){
+toast.success("Payment successful 🎉");
+localStorage.removeItem("appliedCoupon");
+localStorage.removeItem("discount");
+localStorage.removeItem("autoDiscount");
+localStorage.removeItem("bogoDiscount");
 
-      const razorData = await razorRes.json();
+setTimeout(()=>{
+clearCart();
+window.location.href="/";
+},3000);
+}
 
-      // ================= STEP 3: OPEN RAZORPAY =================
-      const options = {
-        key: process.env.REACT_APP_RAZORPAY_KEYID,
-        amount: razorData.amount,
-        currency: "INR",
-        order_id: razorData.id,
+}else{
+toast.error("Payment verification failed ❌");
+}
 
-        handler: async function (response) {
+},
 
-          // ================= STEP 4: VERIFY =================
-          const verifyRes = await fetch(`${baseURL}/api/payment/verify`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              ...response,
-              orderId
-            })
-          });
+modal:{
+ondismiss:function(){
+toast.error("Payment cancelled");
+}
+}
+};
 
-          const verifyData = await verifyRes.json();
+const rzp = new window.Razorpay(options);
 
-          if (verifyData.success) {
-            toast.success("Payment successful! 🎉") ;
-            setTimeout(() => {
-  clearCart();
-  window.location.href = "/";
-}, 3000); // ⏱️ 2 seconds
-          } else {
-            toast.error("Payment verification failed ❌");
-          }
-        }
-      };
+// Payment failed event
+rzp.on("payment.failed",function(){
+toast.error("Payment failed ❌");
+});
 
-      new window.Razorpay(options).open();
-    }
+rzp.open();
 
-  } catch (err) {
-    console.error(err);
-  }
+}
+
+}catch(err){
+console.error(err);
+}
 };
 const saveAddressToDB = async () => {
   try {
@@ -420,39 +530,180 @@ useEffect(() => {
             </div>
 
             <div className="col-md-4">
-              <div className="summary-card">
-                <h5>Total</h5>
-                <h3>₹{cartTotal}</h3>
-              </div>
-            </div>
+  <div className="summary-box p-4 shadow-sm">
+
+    <h5 className="fw-bold border-bottom pb-3 mb-3">
+      Order Summary
+    </h5>
+
+    <div className="price-row">
+      <span>Subtotal</span>
+      <span>₹{cartTotal}</span>
+    </div>
+
+    {discount > 0 && (
+      <div className="price-row text-success">
+        <span>Coupon Discount</span>
+        <span>-₹{discount}</span>
+      </div>
+    )}
+
+    {autoDiscount > 0 && (
+      <div className="price-row text-primary">
+        <span>Auto Offer</span>
+        <span>-₹{autoDiscount}</span>
+      </div>
+    )}
+
+    {bogoDiscount > 0 && (
+      <div className="price-row text-success fw-semibold">
+        <span>🎁 BOGO Savings</span>
+        <span>-₹{bogoDiscount}</span>
+      </div>
+    )}
+
+    <hr />
+
+    <div className="price-row total-row">
+      <span>Final Total</span>
+      <span>₹{finalTotal}</span>
+    </div>
+
+    {(discount + autoDiscount + bogoDiscount) > 0 && (
+      <p className="text-success small mt-2 mb-0">
+        You saved ₹
+        {discount + autoDiscount + bogoDiscount}
+      </p>
+    )}
+
+    {coupon && (
+      <div className="mt-3">
+        <span className="badge bg-success">
+          Coupon Applied: {coupon.code}
+        </span>
+      </div>
+    )}
+
+  </div>
+</div>
 
           </div>
         )}
 
         {/* ================= STEP 3 ================= */}
         {step === 3 && (
-          <div className="card p-4 shadow-sm border-0">
+         <div className="payment-card p-4 shadow-sm">
 
-            <h4>Select Payment Method</h4>
+<h4 className="fw-bold mb-4 border-bottom pb-3">
+Choose Payment Method
+</h4>
 
-            <div className="form-check">
-              <input type="radio" checked={paymentMethod === "COD"}
-                onChange={() => setPaymentMethod("COD")} />
-              <label> Cash on Delivery</label>
-            </div>
+{/* COD */}
+<label
+className={`payment-option ${
+paymentMethod==="COD" ? "selected-payment" : ""
+}`}
+>
+<input
+type="radio"
+checked={paymentMethod==="COD"}
+onChange={()=>setPaymentMethod("COD")}
+/>
 
-            <div className="form-check mt-2">
-              <input type="radio" checked={paymentMethod === "ONLINE"}
-                onChange={() => setPaymentMethod("ONLINE")} />
-              <label> Pay Online (Razorpay)</label>
-            </div>
+<div className="ms-3">
+<h6 className="mb-1">
+💵 Cash on Delivery
+</h6>
+<small className="text-muted">
+Pay when order arrives
+</small>
+</div>
 
-            <button className="btn btn-green mt-3"
-              onClick={handleFinalOrder}>
-              Place Order 💳
-            </button>
+</label>
 
-          </div>
+
+{/* Online */}
+<label
+className={`payment-option mt-3 ${
+paymentMethod==="ONLINE" ? "selected-payment" : ""
+}`}
+>
+<input
+type="radio"
+checked={paymentMethod==="ONLINE"}
+onChange={()=>setPaymentMethod("ONLINE")}
+/>
+
+<div className="ms-3">
+<h6 className="mb-1">
+💳 Pay Online (Razorpay)
+</h6>
+<small className="text-muted">
+UPI, Cards, Netbanking
+</small>
+</div>
+
+</label>
+
+
+{/* Payment Summary */}
+<div className="summary-box mt-4 p-3">
+
+<h5 className="fw-bold mb-3">
+Payment Summary
+</h5>
+
+<div className="price-row">
+<span>Subtotal</span>
+<span>₹{cartTotal}</span>
+</div>
+
+{discount > 0 && (
+<div className="price-row text-success">
+<span>Coupon Discount</span>
+<span>-₹{discount}</span>
+</div>
+)}
+
+{autoDiscount > 0 && (
+<div className="price-row text-primary">
+<span>Auto Discount</span>
+<span>-₹{autoDiscount}</span>
+</div>
+)}
+
+{bogoDiscount > 0 && (
+<div className="price-row text-success">
+<span>🎁 BOGO Savings</span>
+<span>-₹{bogoDiscount}</span>
+</div>
+)}
+
+<hr/>
+
+<div className="price-row total-row">
+<span>Payable</span>
+<span>₹{finalTotal}</span>
+</div>
+
+<p className="small text-success mt-2 mb-0">
+You saved ₹
+{discount+autoDiscount+bogoDiscount}
+</p>
+
+</div>
+
+
+<button
+className="btn btn-green w-100 mt-4  fw-bold"
+onClick={handleFinalOrder}
+>
+{paymentMethod==="COD"
+? "Place Order 🛍"
+: "Proceed To Pay 💳"}
+</button>
+
+</div>
         )}
 
       </div>

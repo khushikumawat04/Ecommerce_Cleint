@@ -593,6 +593,24 @@ a {
   background-color: #ccc;
   cursor: not-allowed;
 }
+.offer-wrapper{
+margin:8px;
+display:flex;
+flex-direction:column;
+
+gap:6px;
+}
+
+.offer-badge-custom{
+background:#fff4d6;
+color:#b36b00;
+font-size:12px;
+font-weight:600;
+padding:6px 10px;
+border-radius:20px;
+display:inline-block;
+width:fit-content;
+}
 
 
 /* Checkout */
@@ -626,4 +644,84 @@ a {
   background: white;
   padding: 20px;
   border-radius: 10px;
+}
+
+.summary-box{
+border:1px solid #eaeaea;
+border-radius:16px;
+background:#fff;
+}
+
+.price-row{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:10px 0;
+font-size:15px;
+border-bottom:1px dashed #eee;
+}
+
+.price-row:last-child{
+border-bottom:none;
+}
+
+.total-row{
+font-size:20px;
+font-weight:700;
+color:var(--primary-green);
+padding-top:15px;
+}
+
+/* Checkout summary */
+/* .summary-box{
+background:#fff;
+border:1px solid #eaeaea;
+border-radius:16px;
+} */
+
+.price-row{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:10px 0;
+border-bottom:1px dashed #eee;
+font-size:15px;
+}
+
+.total-row{
+font-size:20px;
+font-weight:700;
+color:var(--primary-green);
+border-bottom:none;
+}
+
+/* why choose product detilas */
+.why-choose-box{
+background:#fff;
+padding:25px;
+border-radius:16px;
+box-shadow:0 4px 15px rgba(0,0,0,.06);
+}
+
+.why-list{
+list-style:none;
+padding:0;
+margin:0;
+}
+
+.why-list li{
+padding:12px 0;
+border-bottom:1px solid #eee;
+font-weight:500;
+display:flex;
+align-items:center;
+}
+
+.why-list li:last-child{
+border-bottom:none;
+}
+
+.why-list i{
+color:var(--primary-green);
+font-size:18px;
 }
