@@ -18,10 +18,10 @@ message:"Invalid amount"
 });
 }
 
-const options={
-amount:Math.round(amount*100),
-currency:"INR",
-receipt:"receipt_"+Date.now()
+const options = {
+  amount: Math.round(amount * 100),
+  currency: "INR",
+  receipt: "receipt_" + Date.now()
 };
 
 const razorOrder=

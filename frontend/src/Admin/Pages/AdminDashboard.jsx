@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import AdminLayout from "../AdminLayout";
 import "../Styles/admin.css";
-
+import { toast } from "react-toastify";
 function AdminDashboard() {
 
 const [orders,setOrders]=useState([]);
@@ -15,7 +15,15 @@ const baseURL=process.env.REACT_APP_API_URL;
 
 
 useEffect(()=>{
+
+fetchOrders(); // initial load
+
+const interval = setInterval(()=>{
  fetchOrders();
+},30000); // 30 sec
+
+return ()=>clearInterval(interval);
+
 },[]);
 
 
@@ -40,12 +48,35 @@ console.error(err);
 };
 
 
-
-const updateStatus=async(id,status)=>{
+const validTransitions = {
+  created: ["confirmed"],
+  confirmed: ["processing"],   // ✅ allow move to processing
+  processing: ["shipped"],     // ✅ allow move to shipped
+  shipped: ["delivered"],      // ✅ final step
+  delivered: [],               // ❌ locked
+  cancelled: []                // ❌ locked
+};
+const updateStatus = async(id,newStatus)=>{
 try{
+
+const order = orders.find(o=>o._id===id);
+if(!order) return;
+
+const currentStatus = order.orderStatus;
+
+// stop backward/invalid movement
+if(
+!validTransitions[currentStatus].includes(newStatus)
+){
+toast.error(
+`Invalid transition: ${currentStatus} → ${newStatus}`
+);
+return;
+}
+
 await axios.put(
 `${baseURL}/api/admin/order/${id}`,
-{status},
+{status:newStatus},
 {
 headers:{
 Authorization:`Bearer ${localStorage.getItem("token")}`
@@ -168,11 +199,14 @@ e.target.value
 }
 >
 <option value="all">All Orders</option>
-<option value="created">Created</option>
+{/* <option value="created">Created</option> */}
 <option value="confirmed">Confirmed</option>
 <option value="shipped">Shipped</option>
 <option value="delivered">Delivered</option>
 <option value="cancelled">Cancelled</option>
+<option value="processing">
+Processing
+</option>
 </select>
 
 
@@ -260,7 +294,7 @@ order.paymentStatus==="paid"
 
 <td className="actions">
 
-<select
+{/* <select
 className="status-dropdown"
 disabled={
 order.orderStatus==="cancelled"
@@ -273,13 +307,60 @@ e.target.value
 )
 }
 >
-<option value="created">Created</option>
+<option value="created">Created</option> 
 <option value="confirmed">Confirmed</option>
-{/* <option value="shipped">Shipped</option> */}
+<option value="shipped">Shipped</option>
 <option value="delivered">Delivered</option>
-</select>
 
 
+</select>  */}
+
+ <select
+className="status-dropdown"
+disabled={
+["delivered","cancelled"].includes(
+order.orderStatus
+)
+}
+value={order.orderStatus}
+onChange={(e)=>
+updateStatus(
+order._id,
+e.target.value
+)
+}
+>
+
+<option value={order.orderStatus}>
+{
+order.orderStatus.charAt(0).toUpperCase() +
+order.orderStatus.slice(1)
+}
+</option>
+
+{/* CONFIRMED → PROCESSING (manual if needed) */}
+{order.orderStatus==="confirmed" && (
+<option value="processing">
+Processing
+</option>
+)}
+
+{/* PROCESSING → SHIPPED */}
+{order.orderStatus==="processing" && (
+<option value="shipped">
+Shipped
+</option>
+)}
+
+{
+order.orderStatus==="shipped" && (
+<option value="delivered">
+Delivered
+</option>
+)
+}
+
+</select> 
 
 <button
 className="btn-view"
@@ -292,33 +373,38 @@ setSelectedOrder(order)
 
 
 
-{
-  ["shipped", "delivered", "cancelled"].includes(order.orderStatus) ? (
-    <div>
-      <button disabled className="btn-ship shipped">
-        {order.orderStatus === "delivered"
-          ? "🎉 Delivered"
-          : order.orderStatus === "cancelled"
-          ? "❌ Cancelled"
-          : "✅ Shipped"}
-      </button>
-    </div>
-  ) : (
-    <button
-      className="btn-ship"
-      onClick={() => shipOrder(order._id)}
-    >
-      🚚 Ship
-    </button>
-
-    /* <button
-className="btn-sync"
-onClick={()=>syncTracking(order._id)}
+{order.orderStatus==="confirmed" && (
+<button
+className="btn-ship"
+onClick={()=>shipOrder(order._id)}
 >
-🔄 Sync
-</button> */
-  )
-}
+🚚 Ship
+</button>
+)}
+
+{order.orderStatus==="processing" && (
+<button disabled className="btn-ship shipped">
+⏳ Processing
+</button>
+)}
+
+{order.orderStatus==="shipped" && (
+<button disabled className="btn-ship shipped">
+✅ Shipped
+</button>
+)}
+
+{order.orderStatus==="delivered" && (
+<button disabled className="btn-ship shipped">
+🎉 Delivered
+</button>
+)}
+
+{order.orderStatus==="cancelled" && (
+<button disabled className="btn-ship shipped">
+❌ Cancelled
+</button>
+)}
 
 </td>
 
@@ -439,7 +525,7 @@ className="item-row"
 <>
 <hr/>
 
-<h5>🚚 Shipment Tracking</h5>
+<h5>🚚 Shipment Tracking</h5> 
 
 <p>
 <strong>Courier:</strong>

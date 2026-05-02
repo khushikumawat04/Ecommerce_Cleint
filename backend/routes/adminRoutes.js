@@ -9,7 +9,8 @@ const {
  getProduct,
   updateProduct,
   deleteProduct,
-  getUsersCount
+  getUsersCount,
+  shiprocketWebhook
 } = require("../controllers/adminController");
 
 const protect = require("../middleware/authMiddleware");
@@ -28,10 +29,12 @@ router.get("/users-count", protect,adminMiddleware, getUsersCount);
 router.put("/order/:id", protect,adminMiddleware,updateOrderStatus);
 
 router.post("/ship/:id", protect,adminMiddleware, shipOrder);
-router.get(
-"/sync-shipment/:id",
-syncShipment
-);
+// router.get(
+// "/sync-shipment/:id",
+// syncShipment
+// );
+
+router.post("/webhooks/shiprocket",shiprocketWebhook);
 
 
 // product management routes

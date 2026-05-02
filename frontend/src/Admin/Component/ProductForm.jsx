@@ -2,7 +2,7 @@ import { useState,useEffect } from "react";
 import "../Styles/productFrom.css";
 
 export default function ProductForm({ onSubmit, initialData = {} }) {
-  const [isDraftSaved, setIsDraftSaved] = useState(false);
+  // const [isDraftSaved, setIsDraftSaved] = useState(false);
 const [lastSaved, setLastSaved] = useState(null);
 const [loading, setLoading] = useState(false);
 
@@ -200,31 +200,31 @@ const removeKeyword = (index) => {
     seo: form.seo
   });
 
-  localStorage.removeItem("product_draft");
+  // localStorage.removeItem("product_draft");
 
   setLoading(false);
 };
 
-  const saveDraft = () => {
-  localStorage.setItem("product_draft", JSON.stringify(form));
-  setIsDraftSaved(true);
-  setLastSaved(new Date().toLocaleTimeString());
-};
+//   const saveDraft = () => {
+//   localStorage.setItem("product_draft", JSON.stringify(form));
+//   setIsDraftSaved(true);
+//   setLastSaved(new Date().toLocaleTimeString());
+// };
 useEffect(() => {
   const interval = setInterval(() => {
-    localStorage.setItem("product_draft", JSON.stringify(form));
+    // localStorage.setItem("product_draft", JSON.stringify(form));
     setLastSaved(new Date().toLocaleTimeString());
   }, 5000); // 5 sec auto save
 
   return () => clearInterval(interval);
 },);
-useEffect(() => {
-  const draft = localStorage.getItem("product_draft");
+// useEffect(() => {
+//   const draft = localStorage.getItem("product_draft");
 
-  if (draft) {
-    setForm(JSON.parse(draft));
-  }
-}, []);
+//   if (draft) {
+//     setForm(JSON.parse(draft));
+//   }
+// }, []);
   return (
     <form onSubmit={submit} className="container p-4 bg-white shadow rounded">
 
@@ -477,17 +477,17 @@ useEffect(() => {
 
 <div className="d-flex justify-content-between align-items-center mb-3">
 
-  <button
+  {/* <button
     type="button"
     className="btn btn-warning"
-    onClick={saveDraft}
+    // onClick={saveDraft}
   >
     💾 Save Draft
-  </button>
+  </button> */}
 
-  <small style={{ color: "gray" }}>
+  {/* <small style={{ color: "gray" }}>
     {lastSaved ? `Last saved at ${lastSaved}` : "Not saved yet"}
-  </small>
+  </small> */}
 
 </div>
     <button

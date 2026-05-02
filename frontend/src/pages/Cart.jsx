@@ -15,156 +15,102 @@ function Cart() {
 const [discount, setDiscount] = useState(0);
 const [finalTotal, setFinalTotal] = useState(cartTotal);
 const [appliedOffer, setAppliedOffer] = useState(null);
-const [extraDiscount,setExtraDiscount] = useState(0);
-const [bogoMessage,setBogoMessage] = useState("");
-const [bogoOffers,setBogoOffers] = useState({});
-const [bogoDiscount,setBogoDiscount] = useState(0);
+// const [extraDiscount,setExtraDiscount] = useState(0);
+// const [bogoMessage,setBogoMessage] = useState("");
+// const [bogoOffers,setBogoOffers] = useState({});
+// const [bogoDiscount,setBogoDiscount] = useState(0);
+const [appliedOfferType,setAppliedOfferType] = useState(null);
+const [offerRemoved, setOfferRemoved] = useState(false);
+const [bogoDetails, setBogoDetails] = useState([]);
+// values: "coupon" | "auto" | "bogo" | null
 const baseURL = process.env.REACT_APP_API_URL;
 
 
   const navigate = useNavigate();
- const fetchAutoOffers = async () => {
-try{
 
-const res = await axios.get(
-`${baseURL}/api/offers`
-);
+const applyCoupon = async () => {
 
-const offers = res.data.offers || [];
-
-let autoDiscount = 0;
-let totalBogoSavings = 0;
-let bogoText = "";
-let bogoMap = {};
-
-offers.forEach(offer => {
-
-if(
-offer.type==="auto_discount" &&
-cartTotal >= offer.minOrderValue
-){
-autoDiscount =
-(cartTotal * offer.discountPercent)/100;
+if(appliedOfferType){
+toast.error("Only one offer allowed ❌");
+return;
 }
 
-if(offer.type==="bogo"){
+await applyBestOffer(couponCode);
 
-const productInCart =
-cartItems.find(
-item => item._id === offer.productId?._id
-);
-
-if(
-productInCart &&
-productInCart.quantity >= offer.buyQty
-){
-
-const freeItems =
-Math.floor(
-productInCart.quantity / offer.buyQty
-) * offer.freeQty;
-
-totalBogoSavings +=
-freeItems * productInCart.price;
-
-bogoMap[productInCart._id]={
-buyQty:offer.buyQty,
-freeQty:offer.freeQty,
-freeItems
-};
-
-bogoText =
-`Buy ${offer.buyQty} Get ${offer.freeQty} Applied 🎁`;
-
-}
-
-}
-});
-
-setExtraDiscount(autoDiscount);
-setBogoOffers(bogoMap);
-setBogoDiscount(totalBogoSavings);
-localStorage.setItem(
-"autoDiscount",
-String(autoDiscount)
-);
-
-localStorage.setItem(
-"bogoDiscount",
-String(totalBogoSavings)
-);
-
-setBogoMessage(bogoText);
-
-}catch(err){
-console.log(err);
+if(!couponCode){
+toast.error("Enter coupon code");
 }
 };
-  const applyCoupon = async () => {
-try {
-
-const res = await axios.post(
-`${baseURL}/api/offers/apply-coupon`,
-{
-code: couponCode,
-cartTotal
-}
-);
-console.log("Coupon Response:", res.data);
-if(res.data.success){
-
-const discountAmount =
-cartTotal - res.data.finalTotal;
-
-setDiscount(discountAmount);
-setFinalTotal(res.data.finalTotal);
-setAppliedOffer(res.data.offer);
-
-// save for checkout page
-localStorage.setItem(
-"appliedCoupon",
-JSON.stringify({
-code: couponCode
-})
-);
-
-localStorage.setItem(
-"discount",
-String(discountAmount)
-);
+const applyBestOffer = async (manualCoupon = "") => {
+  try {
+    const res = await axios.post(
+      `${baseURL}/api/offers/apply-best-offer`,
+      {
+        cartItems,
+        cartTotal,
+        couponCode: manualCoupon || couponCode
+      }
+    );
+     // 👉 ADD HERE
+    // console.log("API RESPONSE:", res.data);
 
 
+    if (res.data.success) {
+      // ✅ APPLY OFFER
+      setDiscount(res.data.discount);
+      setFinalTotal(res.data.finalTotal);
+      setAppliedOfferType(res.data.type);
 
-toast.success("Coupon Applied");
-}
-else{
-alert("Invalid Coupon");
-}
+      localStorage.setItem("finalDiscount", res.data.discount);
+      localStorage.setItem("finalOfferType", res.data.type);
+      localStorage.setItem("finalTotal", res.data.finalTotal);
 
-} catch(err){
-console.log(err);
-alert("Coupon failed");
-}
+        if (res.data.type === "bogo") {
+    setBogoDetails(res.data.bogoDetails || []);
+  } else {
+    setBogoDetails([]);
+  }
+
+    } else {
+      // ❗ IMPORTANT: REMOVE INVALID OFFER
+      setDiscount(0);
+      setFinalTotal(cartTotal);
+      setAppliedOfferType(null);
+        setBogoDetails([]); // ✅ ADD THIS
+
+      localStorage.removeItem("finalDiscount");
+      localStorage.removeItem("finalOfferType");
+      localStorage.removeItem("finalTotal");
+
+      // optional toast (avoid spam)
+      console.log("Offer removed: ", res.data.message);
+    }
+
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 
+useEffect(() => {
+  applyBestOffer();
+   setBogoDetails([]); // reset before new API call
+  // alert("price chnage");
+}, [cartItems, cartTotal]);
 
-useEffect(()=>{
+const clearOffer = () => {
+  localStorage.removeItem("finalDiscount");
+  localStorage.removeItem("finalOfferType");
+  localStorage.removeItem("finalTotal");
 
-setFinalTotal(
-cartTotal-discount-extraDiscount
-);
-// localStorage.removeItem("appliedCoupon");
-// localStorage.removeItem("discount");
+  setDiscount(0);
+  setFinalTotal(cartTotal);
+  setAppliedOfferType(null);
+  setCouponCode("");
+  setOfferRemoved(true); // ✅ prevent auto apply
 
-fetchAutoOffers();
-
-},[
-cartTotal,
-discount,
-cartItems
-]);
-
+  toast.success("Offer removed ✅");
+};
   const handleCheckout = () => {
     const user = JSON.parse(localStorage.getItem("user"));
    
@@ -197,8 +143,15 @@ cartItems
             {/* LEFT SIDE */}
             <div className="col-lg-8">
 
-              {cartItems.map((item) => (
+              {cartItems.map((item) =>{
+                 const bogoItem = bogoDetails.find(
+  b => String(b.productId) === String(item._id)
+);;
+  
+
+              return (
                 <div key={item._id} className="cart-card">
+                  
 
                   <div className="row align-items-center">
 
@@ -244,12 +197,17 @@ cartItems
                           +
                         </button>
 
-                      </div>
-{bogoOffers[item._id] && (
-<p className="text-success fw-bold mt-2">
-🎁 {bogoOffers[item._id].freeItems} Free Item Added
-</p>
+
+          {/* ✅ BOGO MESSAGE */}
+        {bogoItem && bogoItem.freeItems > 0 && (
+  <p className="text-success small mb-1 mx-4">
+     🎁 Buy {bogoItem.buyQty} Get {bogoItem.freeQty} Free  
+    ({bogoItem.freeItems} free)
+  </p>
 )}
+
+                      </div>
+
                       <small className="stock-in">In Stock</small>
 
                     </div>
@@ -259,13 +217,7 @@ cartItems
 
                       <h6 className="fw-bold">
                         {/* ₹{item.price * item.quantity} */}
-           ₹{
-item.price *
-(
-item.quantity -
-(bogoOffers[item._id]?.freeItems || 0)
-)
-}
+  ₹{item.price * item.quantity}
                       </h6>
 
                       <button
@@ -280,7 +232,7 @@ item.quantity -
                   </div>
 
                 </div>
-              ))}
+              )}) }
 
             </div>
 
@@ -324,6 +276,7 @@ onClick={applyCoupon}
 Apply
 </button>
 
+
 </div>
 
 </div>
@@ -341,31 +294,29 @@ Price Details
 <span>₹{cartTotal}</span>
 </div>
 
+
+
 {discount > 0 && (
 <div className="price-row text-success">
-<span>Coupon Discount</span>
+<span>Discount ({appliedOfferType})</span>
 <span>-₹{discount}</span>
 </div>
 )}
 
-{extraDiscount > 0 && (
-<div className="price-row text-primary">
-<span>Auto Offer</span>
-<span>-₹{extraDiscount}</span>
+{appliedOfferType && (
+<div className="alert alert-info mt-2">
+Applied Offer: <b>{appliedOfferType}</b>
 </div>
 )}
 
-{bogoDiscount > 0 && (
-<div className="price-row text-success fw-semibold">
-<span>🎁 BOGO Savings</span>
-<span>-₹{bogoDiscount}</span>
-</div>
-)}
-
-{bogoMessage && (
-<div className="alert alert-success py-2 mt-3 mb-3 small">
-{bogoMessage}
-</div>
+{/* Remove offer button */}
+{appliedOfferType && (
+<button
+className="btn btn-sm btn-danger mt-2"
+onClick={clearOffer}
+>
+Remove Offer ❌
+</button>
 )}
 
 <hr/>
@@ -374,18 +325,13 @@ Price Details
 <span>Total Payable</span>
 
 <span>
-₹{
-cartTotal
-- discount
-- extraDiscount
-- bogoDiscount
-}
+₹{finalTotal || cartTotal}
 </span>
 </div>
 
 <p className="text-success small mt-2 mb-0">
 You saved ₹
-{discount + extraDiscount + bogoDiscount}
+{discount }
 </p>
 
 </div>

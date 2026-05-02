@@ -1,0 +1,110 @@
+/* HEADING */
+.offer-heading {
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+/* ================= AUTO DISCOUNT ================= */
+.auto-offer-box {
+  background: linear-gradient(135deg, var(--primary-green), var(--light-green));
+  padding: 20px;
+  border-radius: 18px;
+  color: white;
+}
+
+.auto-offer-item {
+  background: rgba(255,255,255,0.1);
+  padding: 12px;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+.auto-offer-item .discount {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.auto-offer-item .min {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* ================= COUPON ================= */
+.coupon-card {
+  display: flex;
+  background: var(--white);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.coupon-card .left {
+  background: var(--primary-green);
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+.coupon-card .left h3 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.coupon-card .right {
+  padding: 15px;
+  flex: 1;
+}
+
+.coupon-card .code {
+  font-weight: bold;
+  background: #eee;
+  padding: 5px 10px;
+  display: inline-block;
+  margin-bottom: 5px;
+}
+
+/* ================= BOGO ================= */
+.bogo-card {
+  background: var(--white);
+  padding: 20px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  position: relative;
+}
+
+.bogo-card .badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--gold);
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.product-name {
+  color: #666;
+}
+
+/* ================= COMMON ================= */
+.expiry {
+  margin-top: 10px;
+  font-size: 13px;
+  color: red;
+}
+
+/* HOVER EFFECT */
+.coupon-card:hover,
+.bogo-card:hover,
+.auto-offer-box:hover {
+  transform: translateY(-6px);
+  transition: 0.3s;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .coupon-card {
+    flex-direction: column;
+  }
+}

@@ -52,7 +52,7 @@ subtotal:Number,
   // 🔥 ORDER STATUS (FOR TRACKING)
   orderStatus: {
     type: String,
-    enum: ["created", "confirmed", "shipped", "delivered", "cancelled"],
+    enum: ["created", "confirmed","processing", "shipped", "delivered", "cancelled"],
     default: "created"
   },
 

@@ -4,6 +4,7 @@ import axios from "axios";
 import ProductCard from "../componenets/ProductCard";
 import Footer from "../componenets/Footer";
 import Navbar from "../componenets/Navbar";
+import OffersSection from "./OffersSection";
 
 function Home() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -44,15 +45,6 @@ const filteredProducts = products.filter(product => {
   return matchesSearch && matchesCategory;
 });
 
-//         useEffect(()=>{
-
-// axios
-// .get(`${baseURL}/api/offers`)
-// .then(res=>{
-// setOffers(res.data);
-// })
-
-// },[])
 
   return (
     <div className="main-bg">
@@ -70,14 +62,13 @@ const filteredProducts = products.filter(product => {
         <button className="btn btn-green mt-3">
           Shop Now
         </button>
-        {/* {offers.map(o=>(
-<div key={o._id}>
-{o.title}
-</div>
-))} */}
+     
 
       </div>
   
+
+  {/* Offer Section */}
+  <OffersSection baseURL={baseURL} />
       {/* PRODUCTS */}
       <div className="container py-5">
         <h2 className="section-title text-center custom-heading">

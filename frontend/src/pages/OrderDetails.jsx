@@ -59,15 +59,29 @@ function OrderDetails() {
   ) : (
     <div className="timeline">
 
-      <div className={`step ${order.orderStatus === "created" ? "active" : ""}`}>
+      {/* <div className={`step ${order.orderStatus === "created" ? "active" : ""}`}>
         <i className="fas fa-receipt"></i>
         <p>Created</p>
-      </div>
+      </div> */}
 
-      <div className={`step ${["confirmed","shipped","delivered"].includes(order.orderStatus) ? "active" : ""}`}>
+      <div className={`step ${["confirmed","processing","shipped","delivered"].includes(order.orderStatus) ? "active" : ""}`}>
         <i className="fas fa-check-circle"></i>
         <p>Confirmed</p>
+        <p className="text-dark"> {new Date(order.createdAt).toLocaleString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+   
+  })}</p>
       </div>
+
+      
+      <div className={`step ${["processing","shipped","delivered"].includes(order.orderStatus) ? "active" : ""}`}>
+     <i className="fas fa-sync me-2"></i>
+        <p>Processing</p>
+
+      </div>
+
 
       <div className={`step ${["shipped","delivered"].includes(order.orderStatus) ? "active" : ""}`}>
         <i className="fas fa-truck"></i>
@@ -77,6 +91,14 @@ function OrderDetails() {
       <div className={`step ${order.orderStatus === "delivered" ? "active" : ""}`}>
         <i className="fas fa-box"></i>
         <p>Delivered</p>
+        {order.deliveredAt &&
+        <p className="text-dark"> {new Date(order.deliveredAt).toLocaleString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+   
+  })}</p>
+}
       </div>
 
     </div>

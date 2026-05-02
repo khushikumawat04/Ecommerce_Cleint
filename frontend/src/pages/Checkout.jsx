@@ -21,52 +21,35 @@ const saved=localStorage.getItem("appliedCoupon");
 return saved ? JSON.parse(saved) : null;
 });
 
-const [discount,setDiscount]=useState(()=>{
-return Number(localStorage.getItem("discount")) || 0;
-});
-const [autoDiscount,setAutoDiscount] = useState(()=>{
-return Number(
-localStorage.getItem("autoDiscount")
-) || 0;
+
+const [discount,setDiscount] = useState(() => {
+return Number(localStorage.getItem("finalDiscount")) || 0;
 });
 
-const [bogoDiscount,setBogoDiscount] = useState(()=>{
-return Number(
-localStorage.getItem("bogoDiscount")
-) || 0;
+const [offerType,setOfferType] = useState(() => {
+return localStorage.getItem("finalOfferType") || null;
 });
+
 const finalTotal = Math.max(
-cartTotal - discount - autoDiscount - bogoDiscount,
+cartTotal - discount,
 0
 );
 useEffect(()=>{
 
-const savedCoupon=
-localStorage.getItem("appliedCoupon");
-
-const savedDiscount=
-localStorage.getItem("discount");
-
-const savedAuto=
-localStorage.getItem("autoDiscount");
-
-const savedBogo=
-localStorage.getItem("bogoDiscount");
+const savedCoupon = localStorage.getItem("appliedCoupon");
+const savedDiscount = localStorage.getItem("finalDiscount");
+const savedType = localStorage.getItem("finalOfferType");
 
 if(savedCoupon){
-setCoupon(JSON.parse(savedCoupon));
+  setCoupon(JSON.parse(savedCoupon));
 }
 
 if(savedDiscount){
-setDiscount(Number(savedDiscount));
+  setDiscount(Number(savedDiscount));
 }
 
-if(savedAuto){
-setAutoDiscount(Number(savedAuto));
-}
-
-if(savedBogo){
-setBogoDiscount(Number(savedBogo));
+if(savedType){
+  setOfferType(savedType);
 }
 
 },[]);
@@ -161,9 +144,7 @@ image:item.images?.[0]?.url
 // total:cartTotal,
 subtotal: cartTotal,
 discount:
-discount +
-autoDiscount +
-bogoDiscount,
+discount,
 total: finalTotal,
 couponCode: coupon?.code || null,
 address,
@@ -175,10 +156,9 @@ const data=await res.json();
 
 if(data.success){
 toast.success("Order placed successfully 🎉");
-localStorage.removeItem("appliedCoupon");
-localStorage.removeItem("discount");
-localStorage.removeItem("autoDiscount");
-localStorage.removeItem("bogoDiscount");
+localStorage.removeItem("finalDiscount");
+localStorage.removeItem("finalOfferType");
+localStorage.removeItem("finalTotal");
 
 setTimeout(()=>{
 clearCart();
@@ -198,8 +178,8 @@ method:"POST",
 headers:{
 "Content-Type":"application/json"
 },
-body:JSON.stringify({
-amount: finalTotal * 100 // convert to paise
+body: JSON.stringify({
+  amount: Number(finalTotal) // MUST be rupees only
 })
 }
 );
@@ -251,13 +231,13 @@ image:item.images?.[0]?.url
 subtotal: cartTotal,
 total: finalTotal,
 discount:
-discount +
-autoDiscount +
-bogoDiscount,
+discount ,
+offerType: offerType,
 couponCode: coupon?.code || null,
 address,
 paymentMethod:"ONLINE",
 paymentStatus:"Paid",
+orderStatus:"confirmed",
 paymentId:response.razorpay_payment_id
 })
 }
@@ -267,11 +247,9 @@ const orderData=await orderRes.json();
 
 if(orderData.success){
 toast.success("Payment successful 🎉");
-localStorage.removeItem("appliedCoupon");
-localStorage.removeItem("discount");
-localStorage.removeItem("autoDiscount");
-localStorage.removeItem("bogoDiscount");
-
+localStorage.removeItem("finalDiscount");
+localStorage.removeItem("finalOfferType");
+localStorage.removeItem("finalTotal");
 setTimeout(()=>{
 clearCart();
 window.location.href="/";
@@ -530,61 +508,38 @@ useEffect(() => {
             </div>
 
             <div className="col-md-4">
-  <div className="summary-box p-4 shadow-sm">
+<div className="summary-box mt-4 p-3">
 
-    <h5 className="fw-bold border-bottom pb-3 mb-3">
-      Order Summary
-    </h5>
+<h5 className="fw-bold mb-3">
+Payment Summary
+</h5>
 
-    <div className="price-row">
-      <span>Subtotal</span>
-      <span>₹{cartTotal}</span>
-    </div>
+<div className="price-row">
+<span>Subtotal</span>
+<span>₹{cartTotal}</span>
+</div>
 
-    {discount > 0 && (
-      <div className="price-row text-success">
-        <span>Coupon Discount</span>
-        <span>-₹{discount}</span>
-      </div>
-    )}
+{discount > 0 && (
+<div className="price-row text-success">
+<span>Offer Discount ({offerType})</span>
+<span>-₹{discount}</span>
+</div>
+)}
 
-    {autoDiscount > 0 && (
-      <div className="price-row text-primary">
-        <span>Auto Offer</span>
-        <span>-₹{autoDiscount}</span>
-      </div>
-    )}
+<hr/>
 
-    {bogoDiscount > 0 && (
-      <div className="price-row text-success fw-semibold">
-        <span>🎁 BOGO Savings</span>
-        <span>-₹{bogoDiscount}</span>
-      </div>
-    )}
+<div className="price-row total-row">
+<span>Payable</span>
+<span>₹{finalTotal}</span>
+</div>
 
-    <hr />
+{discount > 0 && (
+<p className="small text-success mt-2 mb-0">
+You saved ₹{discount}
+</p>
+)}
 
-    <div className="price-row total-row">
-      <span>Final Total</span>
-      <span>₹{finalTotal}</span>
-    </div>
-
-    {(discount + autoDiscount + bogoDiscount) > 0 && (
-      <p className="text-success small mt-2 mb-0">
-        You saved ₹
-        {discount + autoDiscount + bogoDiscount}
-      </p>
-    )}
-
-    {coupon && (
-      <div className="mt-3">
-        <span className="badge bg-success">
-          Coupon Applied: {coupon.code}
-        </span>
-      </div>
-    )}
-
-  </div>
+</div>
 </div>
 
           </div>
@@ -647,6 +602,7 @@ UPI, Cards, Netbanking
 
 
 {/* Payment Summary */}
+
 <div className="summary-box mt-4 p-3">
 
 <h5 className="fw-bold mb-3">
@@ -658,24 +614,11 @@ Payment Summary
 <span>₹{cartTotal}</span>
 </div>
 
+{/* ✅ SINGLE OFFER ONLY */}
 {discount > 0 && (
 <div className="price-row text-success">
-<span>Coupon Discount</span>
+<span>Offer Discount ({offerType})</span>
 <span>-₹{discount}</span>
-</div>
-)}
-
-{autoDiscount > 0 && (
-<div className="price-row text-primary">
-<span>Auto Discount</span>
-<span>-₹{autoDiscount}</span>
-</div>
-)}
-
-{bogoDiscount > 0 && (
-<div className="price-row text-success">
-<span>🎁 BOGO Savings</span>
-<span>-₹{bogoDiscount}</span>
 </div>
 )}
 
@@ -686,10 +629,11 @@ Payment Summary
 <span>₹{finalTotal}</span>
 </div>
 
+{discount > 0 && (
 <p className="small text-success mt-2 mb-0">
-You saved ₹
-{discount+autoDiscount+bogoDiscount}
+You saved ₹{discount}
 </p>
+)}
 
 </div>
 
