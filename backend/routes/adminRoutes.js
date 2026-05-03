@@ -34,7 +34,7 @@ router.post("/ship/:id", protect,adminMiddleware, shipOrder);
 // syncShipment
 // );
 
-router.post("/webhooks/shiprocket",shiprocketWebhook);
+router.post("/tracking-updates",shiprocketWebhook);
 
 
 // product management routes

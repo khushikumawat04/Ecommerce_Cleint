@@ -2,7 +2,7 @@ const Contact = require("../models/Contact");
 const nodemailer = require("nodemailer");
 
 
-const sendEmail = require("../utils/sendEmail");
+const sendEmail = require("../Utils/SendEmail");
 
 exports.sendMessage = async (req,res)=>{
 try{
