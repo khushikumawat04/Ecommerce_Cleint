@@ -50,6 +50,39 @@ export default function OffersSection({ baseURL }) {
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
   };
 
+
+  // live time 
+  const getLiveTimeLeft = (endDate) => {
+  if (!endDate) return "";
+
+  const now = new Date();
+
+  const end = new Date(endDate);
+  end.setHours(23, 59, 59, 999); // full last day
+
+  const diff = end - now;
+
+  if (diff <= 0) return "Expired";
+
+  const totalSeconds = Math.floor(diff / 1000);
+
+  const days = Math.floor(totalSeconds / (24 * 3600));
+  const hours = Math.floor((totalSeconds % (24 * 3600)) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+};
+
+const [, setTick] = useState(0);
+
+useEffect(() => {
+  const interval = setInterval(() => {
+    setTick(t => t + 1);
+  }, 1000);
+
+  return () => clearInterval(interval);
+}, []);
   return (
   <div className="offers-wrapper container py-5">
 
@@ -132,7 +165,7 @@ export default function OffersSection({ baseURL }) {
 
               {o.endDate && (
                 <div className="expiry">
-                  ⏳ {getDaysLeft(o.endDate)} days left
+                  ⏳  {getLiveTimeLeft(o.endDate)}
                 </div>
               )}
 
@@ -161,7 +194,7 @@ export default function OffersSection({ baseURL }) {
 
             {o.endDate && (
               <div className="expiry">
-                ⏳ {getDaysLeft(o.endDate)} days left
+                ⏳ {getLiveTimeLeft(o.endDate)}
               </div>
             )}
 

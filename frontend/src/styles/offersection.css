@@ -102,6 +102,15 @@
   transition: 0.3s;
 }
 
+.expiry {
+  opacity: 1;
+  transition: 0.3s;
+}
+
+.coupon-card:hover .expiry {
+  transform: scale(1.05);
+}
+
 /* MOBILE */
 @media (max-width: 768px) {
   .coupon-card {
