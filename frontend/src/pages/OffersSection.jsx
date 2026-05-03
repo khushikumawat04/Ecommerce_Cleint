@@ -6,6 +6,12 @@ export default function OffersSection({ baseURL }) {
 
   const [offers, setOffers] = useState([]);
 
+  const getEndOfDay = (dateString) => {
+  const date = new Date(dateString);
+  date.setHours(23, 59, 59, 999);
+  return date;
+};
+
   /* FETCH OFFERS */
   useEffect(() => {
     axios.get(`${baseURL}/api/offers`)
@@ -21,7 +27,7 @@ export default function OffersSection({ baseURL }) {
 
     const now = new Date();
     const start = o.startDate ? new Date(o.startDate) : null;
-    const end = o.endDate ? new Date(o.endDate) : null;
+ const end = o.endDate ? getEndOfDay(o.endDate) : null;
 
     if (start && now < start) return false;
     if (end && now > end) return false;

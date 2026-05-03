@@ -196,6 +196,19 @@ const submit = async (e) => {
   }
 };
 
+// get offer status
+const getOfferStatus = (offer) => {
+  const now = new Date();
+  const start = new Date(offer.startDate);
+ const end = new Date(offer.endDate);
+end.setHours(23, 59, 59, 999);
+
+  if (!offer.startDate || !offer.endDate) return "No Dates";
+
+  if (now < start) return "Upcoming";
+  if (now > end) return "Expired";
+  return "Active";
+};
 return(
 <AdminLayout>
 
@@ -434,6 +447,7 @@ required
         <th>Type</th>
         <th>Discount</th>
         <th>Applicable Products</th>
+        <th>Status</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -456,8 +470,12 @@ required
           <>Buy {o.buyQty} Get {o.freeQty}</>
         )}
 
-        {o.type !== "bogo" && (
+        {o.type == "auto_discount" && (
           <>{o.discountPercent}% OFF</>
+        )}
+         {o.type == "coupon" && (
+          <>{o.discountPercent}% OFF<br/>
+          {o.code}</>
         )}
       </td>
 
@@ -476,8 +494,31 @@ required
   )}
 </td>
 
+
+{/* status */}
+<td>
+  {(() => {
+    const status = getOfferStatus(o);
+
+    return (
+      <span
+        className={`badge ${
+          status === "Active"
+            ? "bg-success"
+            : status === "Expired"
+            ? "bg-danger"
+            : status === "Upcoming"
+            ? "bg-warning"
+            : "bg-secondary"
+        }`}
+      >
+        {status}
+      </span>
+    );
+  })()}
+</td>
       {/* ACTIONS */}
-      <td>
+      <td className="text-center">
         <button
           className="btn btn-sm btn-warning me-2"
           onClick={() => editOffer(o)}
@@ -486,7 +527,7 @@ required
         </button>
 
         <button
-          className="btn btn-sm btn-danger"
+          className="btn btn-sm btn-danger mt-1"
           onClick={() => deleteOffer(o._id)}
         >
           Delete
