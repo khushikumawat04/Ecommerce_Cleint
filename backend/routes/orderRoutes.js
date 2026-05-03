@@ -247,6 +247,10 @@ router.put("/cancel/:id", protect, async (req, res) => {
     order.cancelledAt = new Date();
 
     await order.save();
+  res.json({
+      success: true,
+      message: "Order cancelled successfully"
+    });
 
     // Get customer
     const user = await User.findById(req.user._id);
@@ -254,7 +258,7 @@ router.put("/cancel/:id", protect, async (req, res) => {
     // -----------------------------
     // EMAILS (Customer + Admin)
     // -----------------------------
-    try {
+   
 
       const customerEmailHtml = `
       <div style="font-family:Arial;background:#f6f6f6;padding:20px;">
@@ -360,34 +364,24 @@ router.put("/cancel/:id", protect, async (req, res) => {
 
 
       // Send both emails without breaking if one fails
-      await Promise.allSettled([
-        sendEmail(
-          user.email,
-          "Order Cancelled ❌ | Karmaas",
-          customerEmailHtml
-        ),
+    (async () => {
+  try {
 
-        sendEmail(
-          "karmaas.in@gmail.com", // Admin Email
-          "Customer Cancelled Order Alert ❌",
-          adminEmailHtml
-        )
-      ]);
+    const user = await User.findById(req.user._id);
 
-    } catch (emailErr) {
-      console.log("Email sending issue:", emailErr.message);
-    }
-
-    return res.json({
-      success: true,
-      message: "Order cancelled successfully"
-    });
+    await Promise.allSettled([
+      sendEmail(user.email, "Order Cancelled ❌ | Karmaas", customerEmailHtml),
+      sendEmail("karmaas.in@gmail.com", "Customer Cancelled Order Alert ❌", adminEmailHtml)
+    ]);
 
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({
-      error: err.message
-    });
+    console.log("Email error:", err.message);
   }
+})(); 
+
+} catch (err) {
+  res.status(500).json({ error: err.message });
+}
+
 });
 module.exports = router;
