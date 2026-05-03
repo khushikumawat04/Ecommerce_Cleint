@@ -76,6 +76,11 @@ discount: verifiedDiscount,
 couponCode
 });
 
+res.json({
+success:true,
+orderId:order._id
+});
+
 const user = await User.findById(req.user._id);
 
 
@@ -87,7 +92,7 @@ paymentMethod==="COD"
 ? `🛒 New COD Order #${order._id}`
 : `💳 New Prepaid Order #${order._id}`;
 
-await Promise.all([
+Promise.all([
 
 // Customer Email
 sendEmail(
@@ -107,7 +112,7 @@ user.email,
 
 <p>
 <b>Order ID:</b> ${order._id}<br/>
-<b>Total:</b> ₹${total}<br/>
+<b>Total:</b> ₹${verifiedTotal}<br/>
 <b>Payment:</b> ${paymentMethod}
 </p>
 
@@ -150,7 +155,7 @@ ${items.map(i=>`
 </ul>
 
 <h3 style="color:#00C853;">
-Total: ₹${total}
+Total: ₹${verifiedTotal}
 </h3>
 
 </div>
@@ -165,10 +170,7 @@ Total: ₹${total}
 console.log("Email failed but order created:",emailErr.message);
 }
 
-res.json({
-success:true,
-orderId:order._id
-});
+
 
 }catch(err){
 res.status(500).json({
