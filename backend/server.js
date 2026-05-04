@@ -10,6 +10,7 @@ const adminRoutes = require("./routes/adminRoutes");
 const passport = require("./config/passport");
 const contectRoutes = require("./routes/contactRoutes");  
 const offerRoutes = require("./routes/offerRoutes");
+const sendEmail = require("./Utils/SendEmail");
 dotenv.config();
 connectDB();
 
@@ -39,6 +40,16 @@ app.use("/api/payment", paymentRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/contact", contectRoutes);
 app.use("/api/offers", offerRoutes);
+
+app.get("/test-email", async (req,res)=>{
+  await sendEmail(
+    "kkhushikumawat04@gmail.com",
+    "Test Email 🚀",
+    "<h1>Working perfectly!</h1>"
+  );
+
+  res.send("Email triggered");
+});
 
 const PORT = process.env.PORT || 5000;
 
