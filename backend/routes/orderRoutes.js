@@ -112,6 +112,11 @@ user.email,
 
 <p>
 <b>Order ID:</b> ${order._id}<br/>
+<ul>
+${items.map(i=>`
+<li>${i.name} × ${i.quantity} — ₹${i.price}</li>
+`).join("")}
+</ul>
 <b>Total:</b> ₹${verifiedTotal}<br/>
 <b>Payment:</b> ${paymentMethod}
 </p>
@@ -277,9 +282,26 @@ router.put("/cancel/:id", protect, async (req, res) => {
 
             <div style="background:#f5f5f5;padding:15px;border-radius:8px;">
               <p><strong>Order ID:</strong> ${order._id}</p>
+
+
               <p><strong>Cancelled On:</strong> ${new Date(
                 order.cancelledAt
               ).toLocaleString()}</p>
+               ${
+                order.items?.length
+                  ? `
+                <p><strong>Cancelled Items:</strong></p>
+                <ul>
+                  ${order.items
+                    .map(
+                      item =>
+                        `<li>${item.name} x ${item.quantity}</li>`
+                    )
+                    .join("")}
+                </ul>
+              `
+                  : ""
+              }
               <p><strong>Reason:</strong> ${order.cancelReason}</p>
             </div>
 
@@ -323,6 +345,7 @@ router.put("/cancel/:id", protect, async (req, res) => {
 
             <div style="background:#f5f5f5;padding:15px;border-radius:8px;">
               <p><strong>Order ID:</strong> ${order._id}</p>
+      
               <p><strong>Customer:</strong> ${user.name}</p>
               <p><strong>Email:</strong> ${user.email}</p>
               <p><strong>Cancelled On:</strong> ${new Date(

@@ -6,128 +6,157 @@ const Offer = require("../models/Offer");
 CREATE OFFER
 ========================= */
 
-exports.createOffer = async (req,res)=>{
-try{
+exports.createOffer = async (req, res) => {
+  try {
 
-let {
-  title,
-type,
-code,
-discountPercent,
-minOrderValue,
-buyQty,
-freeQty,
-productId,
-applyTo,
-applicableProducts,
-applicableCategory,
-startDate,
-endDate
-} = req.body;
+    /* ---------------- DESTRUCTURE ---------------- */
+    let {
+      title,
+      type,
+      code,
+      discountPercent,
+      minOrderValue,
+      buyQty,
+      freeQty,
+      productId,
+      applyTo,
+      applicableProducts,
+      applicableCategory,
+      startDate,
+      endDate
+    } = req.body;
 
+    /* ---------------- NORMALIZE ---------------- */
+    if (code) {
+      code = code.toUpperCase().trim();
+    }
 
-/* ---------------- NORMALIZE ---------------- */
-if(code){
-code = code.toUpperCase().trim();
-}
+    // convert numbers
+    discountPercent = Number(discountPercent) || 0;
+    minOrderValue = Number(minOrderValue) || 0;
+    buyQty = Number(buyQty) || 0;
+    freeQty = Number(freeQty) || 0;
 
+    /* ---------------- FORCE RULES ---------------- */
 
-/* ---------------- FORCE RULES ---------------- */
+    // BOGO must be product-based
+    if (type === "bogo") {
+      applyTo = "products";
+    }
 
-// 🔥 BOGO must always be product based
-if(type === "bogo"){
-applyTo = "products";
-}
+    // remove empty productId
+    if (!productId) {
+      productId = undefined;
+    }
 
-// remove empty productId
-if(!productId){
-productId = undefined;
-}
+    /* ---------------- VALIDATIONS ---------------- */
 
+    // coupon
+    if (type === "coupon") {
+      if (!code) {
+        return res.status(400).json({
+          success: false,
+          message: "Coupon code required"
+        });
+      }
+    }
 
-/* ---------------- VALIDATIONS ---------------- */
+    // auto discount
+    if (type === "auto_discount") {
+      if (!discountPercent) {
+        return res.status(400).json({
+          success: false,
+          message: "Discount percent required"
+        });
+      }
+    }
 
-// coupon
-if(type === "coupon"){
-if(!code){
-return res.status(400).json({ message:"Coupon code required" });
-}
-}
+    // BOGO
+    if (type === "bogo") {
+      if (!productId || !buyQty || !freeQty) {
+        return res.status(400).json({
+          success: false,
+          message: "BOGO requires product + buyQty + freeQty"
+        });
+      }
+    }
 
-// auto discount
-if(type === "auto_discount"){
-if(!discountPercent){
-return res.status(400).json({ message:"Discount percent required" });
-}
-}
+    // applyTo: products
+    if (applyTo === "products" && type !== "bogo") {
+      if (!applicableProducts || applicableProducts.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Select at least one product"
+        });
+      }
+    }
 
-// BOGO
-if(type === "bogo"){
-if(!productId || !buyQty || !freeQty){
-return res.status(400).json({
-message:"BOGO requires product + buyQty + freeQty"
-});
-}
-}
+    // applyTo: category
+    if (applyTo === "category") {
+      if (!applicableCategory) {
+        return res.status(400).json({
+          success: false,
+          message: "Category required"
+        });
+      }
+    }
 
-// applyTo logic
-if(applyTo === "products" && type !== "bogo"){
-if(!applicableProducts || applicableProducts.length === 0){
-return res.status(400).json({
-message:"Select at least one product"
-});
-}
-}
+    /* ---------------- DATE VALIDATION ---------------- */
 
-if(applyTo === "category"){
-if(!applicableCategory){
-return res.status(400).json({
-message:"Category required"
-});
-}
-}
+    if (startDate && endDate) {
+      if (new Date(startDate) > new Date(endDate)) {
+        return res.status(400).json({
+          success: false,
+          message: "Start date cannot be after end date"
+        });
+      }
+    }
 
+    /* ---------------- NORMALIZE DATES ---------------- */
 
-// date validation
-if(startDate && endDate){
-if(new Date(startDate) > new Date(endDate)){
-return res.status(400).json({
-message:"Start date cannot be after end date"
-});
-}
-}
+    if (startDate) {
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0); // start of day
+      startDate = start;
+    }
 
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999); // end of day ✅
+      endDate = end;
+    }
 
-/* ---------------- CREATE ---------------- */
+    /* ---------------- CREATE ---------------- */
 
-const offer = await Offer.create({
-  title,
-type,
-code,
-discountPercent,
-minOrderValue,
-buyQty,
-freeQty,
-productId,
-applyTo,
-applicableProducts,
-applicableCategory,
-startDate,
-endDate
-});
+    const offer = await Offer.create({
+      title,
+      type,
+      code,
+      discountPercent,
+      minOrderValue,
+      buyQty,
+      freeQty,
+      productId,
+      applyTo,
+      applicableProducts,
+      applicableCategory,
+      startDate,
+      endDate,
+      active: true
+    });
 
-res.status(201).json({
-success:true,
-message:"Offer created successfully",
-offer
-});
+    return res.status(201).json({
+      success: true,
+      message: "Offer created successfully",
+      offer
+    });
 
-}catch(error){
-res.status(500).json({
-success:false,
-message:error.message
-});
-}
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
 };
 
 /* =========================
@@ -214,6 +243,18 @@ exports.updateOffer = async (req, res) => {
         });
       }
     }
+
+if (startDate) {
+  const start = new Date(startDate);
+  start.setHours(0, 0, 0, 0);
+  startDate = start;
+}
+
+if (endDate) {
+  const end = new Date(endDate);
+  end.setHours(23, 59, 59, 999);
+  endDate = end;
+}
 
     /* -------- UPDATE -------- */
 
@@ -321,13 +362,29 @@ APPLY COUPON
 ========================= */
 
 
-
 exports.applyBestOffer = async (req, res) => {
 try {
 
 const { cartItems, cartTotal, couponCode } = req.body;
 
-const offers = await Offer.find({ active: true });
+
+
+
+
+const now = new Date();
+
+const offers = await Offer.find({
+  active: true,
+  $or: [
+    { startDate: { $exists: false } },
+    { startDate: { $lte: now } }
+  ],
+  $or: [
+    { endDate: { $exists: false } },
+    { endDate: { $gte: now } }
+  ]
+});
+console.log("Active Offer", offers);
 
 let bestOffer = null;
 let maxDiscount = 0;

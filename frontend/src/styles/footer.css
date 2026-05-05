@@ -64,3 +64,22 @@
   font-size: 13px;
   color: var(--white);
 }
+
+.developer-credit {
+  font-size: 14px;
+  color: #ccc;
+}
+
+.developer-credit a {
+  color: #fff;
+  font-weight: 500;
+  
+}
+.developer-credit a:hover{
+  color: white;
+  font-weight: 600;
+}
+
+.developer-credit img {
+  border-radius: 4px;
+}
