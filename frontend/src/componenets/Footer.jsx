@@ -34,7 +34,7 @@ const Footer = () => {
           </div>
 
           {/* SHOP */}
-          <div className="col-md-2 mb-4">
+          <div className="col-6 col-md-3 mb-4">
             <h6>Shop</h6>
             <ul>
               <li><a href="#">Hair Care</a></li>
@@ -45,7 +45,7 @@ const Footer = () => {
           </div>
 
           {/* SUPPORT */}
-          <div className="col-md-2 mb-4">
+          <div className="col-6 col-md-3 mb-4">
             <h6>Support</h6>
             <ul>
               <li><a href="#">Contact Us</a></li>
@@ -56,7 +56,7 @@ const Footer = () => {
           </div>
 
           {/* COMPANY */}
-           <div className="col-md-2 mb-4">
+           <div className="col-6 col-md-3 mb-4">
             <h6>Company</h6>
             <ul className="list-unstyled">
               <li><Link className="text-white" to="/privacy-policy">Privacy Policy</Link></li>
@@ -67,7 +67,7 @@ const Footer = () => {
           </div>
 
           {/* NEWSLETTER */}
-          <div className="col-md-2 mb-4">
+          <div className="col-6 col-md-3 mb-4">
            <h6>Contact</h6>
 
  <ul className="footer-contact-list">

@@ -83,3 +83,16 @@
 .developer-credit img {
   border-radius: 4px;
 }
+
+@media (max-width: 768px) {
+  .footer img {
+    height: 80px !important;
+    width: auto !important;
+  }
+   /* .footer {
+    text-align: center;
+  } */
+  .footer ul li {
+    font-size: 13px;
+  }
+}

@@ -559,6 +559,8 @@ a {
   color: var(--primary-green);
 }
 
+
+
 /* BADGE */
 .cart-badge {
   position: absolute;
@@ -725,3 +727,7 @@ border-bottom:none;
 color:var(--primary-green);
 font-size:18px;
 }
+
+
+
+

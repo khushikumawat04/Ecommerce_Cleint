@@ -1,6 +1,9 @@
 import { useEffect, useContext } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import Navbar from "../componenets/Navbar";
+import Footer from "../componenets/Footer";
+import Loading from "../componenets/Loading";
 
 function GoogleSuccess() {
 
@@ -27,7 +30,7 @@ function GoogleSuccess() {
           user: parsedUser
         });
 
-        navigate("/");
+      window.location.href = "/";
 
       } catch (err) {
         console.error("Google login parsing error", err);
@@ -36,8 +39,15 @@ function GoogleSuccess() {
     }
 
   }, [location, login, navigate]);
+return(
+     <div className="main-bg">
+      <Navbar />
 
-  return <h2>Logging you in...</h2>;
+      <Loading text="Logging you in with Google..." />
+
+      <Footer />
+    </div>
+)
 }
 
 export default GoogleSuccess;

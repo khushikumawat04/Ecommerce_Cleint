@@ -89,7 +89,7 @@ const filteredProducts = products.filter(product => {
 
         <div className="row justify-content-center mt-5">
           {filteredProducts.map(product => (
-            <div className="col-md-3 mb-4" key={product._id}>
+            <div className="col-md-3  mb-4" key={product._id}>
               <ProductCard product={product} />
             </div>
           ))}
