@@ -27,6 +27,7 @@ import AddProduct from './Admin/Pages/AddProduct';
 import Dashboard from './Admin/Pages/Dashboard';
 import EditProduct from './Admin/Pages/EditProduct';
 import OfferAdmin from './Admin/Pages/OfferAdmin';  
+import ScrollTop from './componenets/ScrollTop';
 function App() {
   return (
     <BrowserRouter>
@@ -38,6 +39,7 @@ function App() {
         hideProgressBar={false}
         theme="light"
       />
+      <ScrollTop/>
       <Routes>
         
         <Route path="/" element={<Home />} />

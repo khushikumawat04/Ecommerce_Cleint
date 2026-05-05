@@ -94,11 +94,31 @@ const Footer = () => {
     
 
       {/* BOTTOM BAR */}
-      <div className="footer-bottom text-center py-3">
-        <p className="mb-0">
-          © {new Date().getFullYear()} Karmaas. All rights reserved.
-        </p>
-      </div>
+      {/* BOTTOM BAR */}
+<div className="footer-bottom text-center py-3">
+  <p className="mb-1">
+    © {new Date().getFullYear()} Karmaas. All rights reserved.
+  </p>
+
+  <div className="developer-credit d-flex justify-content-center align-items-center gap-2">
+    <span className="text-light">Developed by: </span>
+
+    <a 
+      href="https://digitalsavers.in/" 
+      target="_blank" 
+      rel="noopener noreferrer"
+      className="d-flex align-items-center text-decoration-none"
+    >
+      {/* <img 
+        src="https://your-logo-link.png" 
+        alt="Digital Savers Pvt Ltd" 
+        height="25"
+        style={{ marginRight: "5px" }}
+      /> */}
+      <span>Digital Savers Pvt Ltd</span>
+    </a>
+  </div>
+</div>
 
     </footer>
   );
