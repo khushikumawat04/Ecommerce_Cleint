@@ -75,13 +75,13 @@ useEffect(() => {
     {/* LEFT SIDE - SOCIAL LINKS */}
     <div className="upper-left">
       {/* Call */}
-      <a href="tel:+919999999999" className="icon">
+      <a href="tel:+919752504406" className="icon">
         <i className="fas fa-phone"></i>
       </a>
 
       {/* WhatsApp */}
       <a
-        href="https://wa.me/919999999999"
+        href="https://wa.me/919752504406"
         target="_blank"
         rel="noopener noreferrer"
         className="icon"
@@ -261,7 +261,7 @@ useEffect(() => {
         </div>
 
         <Link to="/about-us" onClick={() => setMenuOpen(false)}>About</Link>
-        <Link to="/track" onClick={() => setMenuOpen(false)}>Track</Link>
+        {/* <Link to="/track" onClick={() => setMenuOpen(false)}>Track</Link> */}
         <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact</Link>
 
       </div>

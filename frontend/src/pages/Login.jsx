@@ -4,6 +4,7 @@ import { useNavigate, Link, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import Navbar from "../componenets/Navbar";
 import Footer from "../componenets/Footer";
+import Loading from "../componenets/Loading";
 import "../styles/login.css";
 
 function Login() {
@@ -102,8 +103,11 @@ function Login() {
 
   return (
     <div className="login-page">
-      <Navbar />
 
+      <Navbar />
+     {loading ? (
+      <Loading text="Logging you in..." />
+    ) : (
       <div className="login-container">
         <div className="login-card">
 
@@ -202,7 +206,7 @@ function Login() {
 
         </div>
       </div>
-
+    )}
       <Footer />
     </div>
   );

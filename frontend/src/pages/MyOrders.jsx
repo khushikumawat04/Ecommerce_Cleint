@@ -5,9 +5,11 @@ import Footer from "../componenets/Footer";
 import "../styles/myorders.css";
 import {Link} from "react-router-dom";
 import { toast } from "react-toastify";
+import Loading from "../componenets/Loading";
 
 function MyOrders() {
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 const [cancelData, setCancelData] = useState({
   orderId: null,
   reason: "",
@@ -21,6 +23,7 @@ const [cancelData, setCancelData] = useState({
 
   const fetchOrders = async () => {
     try {
+       setLoading(true);
       const res = await axios.get(`${baseURL}/api/orders/my-orders`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -32,6 +35,9 @@ const [cancelData, setCancelData] = useState({
     } catch (err) {
       console.error(err);
     }
+     finally {
+    setLoading(false);
+  }
   };
   const handleCancel = async () => {
   const finalReason =
@@ -67,7 +73,9 @@ const [cancelData, setCancelData] = useState({
   return (
     <div className="main-bg">
       <Navbar />
-
+{loading ? (
+  <Loading text="Fetching your orders..." />
+) :
       <div className="container py-5">
         <h2 className="section-title mb-4">My Orders</h2>
 
@@ -242,6 +250,7 @@ const [cancelData, setCancelData] = useState({
           </div>
         )}
       </div>
+  }
 
       <Footer />
     </div>

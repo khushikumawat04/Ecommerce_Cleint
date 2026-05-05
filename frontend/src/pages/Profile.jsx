@@ -4,6 +4,8 @@ import Navbar from "../componenets/Navbar";
 import Footer from "../componenets/Footer";
 import "../styles/profile.css";
 
+import Loading from "../componenets/Loading";
+
 function Profile() {
   const [user, setUser] = useState(null);
   const [newAddress, setNewAddress] = useState({});
@@ -41,11 +43,15 @@ function Profile() {
     fetchProfile();
   };
 
-  if (!user) return <p>Loading...</p>;
+  // if (!user) return <Loading text="Loading Profile details..." />;
 
  return (
   <>
-    <Navbar />
+   <Navbar />
+  {!user ? (
+      <Loading text="Loading Profile details..." />
+    ) :
+   
 
     <div className="profile-container">
       <div className="profile-card">
@@ -112,6 +118,7 @@ function Profile() {
 
       </div>
     </div>
+}
 
     <Footer />
   </>

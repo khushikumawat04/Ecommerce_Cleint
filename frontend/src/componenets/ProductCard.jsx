@@ -158,17 +158,15 @@ You save ₹
 
 
 <small
-className={
-product.inStock
-? "stock-in"
-: "stock-out"
-}
+  className={
+    product.stock > 0 ? "stock-in" : "stock-out"
+  }
 >
-{
-product.inStock
-? "In Stock"
-: "Out Of Stock"
-}
+  {
+    product.stock > 0
+      ? "In Stock"
+      : "Out Of Stock"
+  }
 </small>
 
 
@@ -184,29 +182,20 @@ View Details
 
 
 <button
-className="btn btn-dark add-cart-btn"
-disabled={!product.inStock}
-onClick={()=>{
-
-addToCart(product);
-
-toast.success(
-"Item added to cart 🛒"
-);
-
-}}
+  className="btn btn-dark add-cart-btn"
+  disabled={product.stock <= 0}
+  onClick={() => {
+    addToCart(product);
+    toast.success("Item added to cart 🛒");
+  }}
 >
+  <i className="fas fa-cart-plus me-2"></i>
 
-<i className="fas fa-cart-plus me-2"></i>
-
-{
-product.inStock
-?
-"Add To Cart"
-:
-"Out Of Stock"
-}
-
+  {
+    product.stock > 0
+      ? "Add To Cart"
+      : "Out Of Stock"
+  }
 </button>
 
 </div>

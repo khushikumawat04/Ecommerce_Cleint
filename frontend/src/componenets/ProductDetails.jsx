@@ -5,6 +5,7 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import { CartContext } from "../context/CartContext";
 import { toast } from "react-toastify";
+import Loading from "../componenets/Loading";
 
 function ProductDetails() {
   const { id } = useParams();
@@ -24,12 +25,19 @@ function ProductDetails() {
       .catch(err => console.log(err));
   }, [id]);
 
-  if (!product) return <h3 className="loading-text">Loading...</h3>;
+  // if (!product) return <Loading text="Loading product details..." />;
 
   return (
+     <>
+     <Navbar />
+    
+     {!product ? (
+      <Loading text="Loading Product details..." />
+    ) :
     <div className="main-bg">
 
-      <Navbar />
+     
+      
 
       <div className="container py-5">
         <div className="row">
@@ -56,7 +64,7 @@ function ProductDetails() {
           </div>
 
           {/* RIGHT INFO */}
-          <div className="col-md-6">
+          <div className="col-md-6 mt-3">
 
             <h3 className="product-title">{product.name}</h3>
             <p className="product-tagline">{product.tagline}</p>
@@ -87,17 +95,22 @@ function ProductDetails() {
      
 
           {/* ADD TO CART */}
-                   <button
-                     className="btn btn-dark add-cart-btn"
-                     onClick={() => {
-                       addToCart(product);
-                       toast.success("Item added to cart 🛒");
-                     }}
-                     disabled={!product.inStock}
-                   >
-                     <i className="fas fa-cart-plus me-2"></i>
-                     {product.inStock ? "Add to Cart" : "Out of Stock"}
-                   </button>
+                  <button
+  className="btn btn-dark add-cart-btn"
+  disabled={product.stock <= 0}
+  onClick={() => {
+    addToCart(product);
+    toast.success("Item added to cart 🛒");
+  }}
+>
+  <i className="fas fa-cart-plus me-2"></i>
+
+  {
+    product.stock > 0
+      ? "Add To Cart"
+      : "Out Of Stock"
+  }
+</button>
 
           </div>
         </div>
@@ -263,8 +276,12 @@ function ProductDetails() {
 )}
 </div>
 
-      <Footer />
+   
+
     </div>
+}
+       <Footer />
+       </>
   );
 }
 
