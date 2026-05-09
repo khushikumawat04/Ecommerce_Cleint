@@ -5,6 +5,7 @@ import { AuthContext } from "../context/AuthContext";
 import Navbar from "../componenets/Navbar";
 import Footer from "../componenets/Footer";
 import "../styles/signup.css";
+import PasswordInput from "../componenets/PasswordInput";
 
 function Signup() {
 
@@ -148,19 +149,23 @@ function Signup() {
           />
 
 
-          <input
-            className="signup-input"
-            type="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={(e)=>{
-              setError("");
-              setForm({
-                ...form,
-                password:e.target.value
-              });
-            }}
-          />
+       <PasswordInput
+ 
+  name="password"
+  value={form.password}
+  placeholder="Enter Password"
+  onChange={(e) => {
+
+    setError("");
+
+    setForm({
+      ...form,
+      password: e.target.value
+    });
+
+  }}
+  required
+/>
 
 
           <button

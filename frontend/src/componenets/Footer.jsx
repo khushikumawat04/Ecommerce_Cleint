@@ -34,7 +34,7 @@ const Footer = () => {
           </div>
 
           {/* SHOP */}
-          <div className="col-6 col-md-3 mb-4">
+          <div className="col-6 col-md-2 mb-4">
             <h6>Shop</h6>
             <ul>
               <li><a href="#">Hair Care</a></li>
@@ -45,18 +45,18 @@ const Footer = () => {
           </div>
 
           {/* SUPPORT */}
-          <div className="col-6 col-md-3 mb-4">
+          <div className="col-6 col-md-2 mb-4">
             <h6>Support</h6>
             <ul>
-              <li><a href="#">Contact Us</a></li>
-              <li><a href="#">Track Order</a></li>
-              <li><a href="#">Return Policy</a></li>
-              <li><a href="#">Shipping Info</a></li>
+              <li><a href="/contact">Contact Us</a></li>
+              <li><a href="/my-orders">Track Order</a></li>
+              <li><a href="/refund-policy">Return Policy</a></li>
+              <li><a href="/shipping-policy">Shipping Info</a></li>
             </ul>
           </div>
 
           {/* COMPANY */}
-           <div className="col-6 col-md-3 mb-4">
+           <div className="col-6 col-md-2 mb-4">
             <h6>Company</h6>
             <ul className="list-unstyled">
               <li><Link className="text-white" to="/privacy-policy">Privacy Policy</Link></li>
@@ -67,7 +67,7 @@ const Footer = () => {
           </div>
 
           {/* NEWSLETTER */}
-          <div className="col-6 col-md-3 mb-4">
+          <div className="col-6 col-md-2 mb-4">
            <h6>Contact</h6>
 
  <ul className="footer-contact-list">
@@ -93,7 +93,7 @@ const Footer = () => {
 
     
 
-      {/* BOTTOM BAR */}
+    
       {/* BOTTOM BAR */}
 <div className="footer-bottom text-center py-3">
   <p className="mb-1">

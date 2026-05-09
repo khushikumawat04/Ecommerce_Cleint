@@ -198,3 +198,89 @@ exports.login = async (req, res) => {
   }
 };
 
+// 🔐 CHANGE PASSWORD
+exports.changePassword = async (req, res) => {
+
+  try {
+
+    const { oldPassword, newPassword } = req.body;
+
+    // validate
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Old password and new password are required"
+      });
+    }
+
+    // password length
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "New password must be at least 6 characters"
+      });
+    }
+
+    // find logged in user
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    // google account check
+    if (
+      user.provider === "google" ||
+      !user.password
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Google login accounts cannot change password here"
+      });
+    }
+
+    // compare old password
+    const isMatch = await bcrypt.compare(
+      oldPassword,
+      user.password
+    );
+
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Old password is incorrect"
+      });
+    }
+
+    // hash new password
+    const hashedPassword = await bcrypt.hash(
+      newPassword,
+      10
+    );
+
+    // update password
+    user.password = hashedPassword;
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Password changed successfully"
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+
+  }
+
+};

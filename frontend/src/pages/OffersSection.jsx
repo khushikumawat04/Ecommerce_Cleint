@@ -83,7 +83,11 @@ useEffect(() => {
 
   return () => clearInterval(interval);
 }, []);
+if (activeOffers.length === 0) {
+  return null;
+}
   return (
+
   <div className="offers-wrapper container py-5">
 
   <h2 className="offer-heading text-center mb-5">

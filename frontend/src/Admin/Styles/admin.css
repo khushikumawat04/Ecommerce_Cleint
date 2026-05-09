@@ -181,8 +181,9 @@
   font-size: 12px;
 }
 
-.btn-ship.shipped{
-background:green;
+.btn-ship-all{
+background: var(--primary-green);
+color:var(--white);
 cursor:not-allowed;
 }
 

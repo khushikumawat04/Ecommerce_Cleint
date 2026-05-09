@@ -28,6 +28,7 @@ import Dashboard from './Admin/Pages/Dashboard';
 import EditProduct from './Admin/Pages/EditProduct';
 import OfferAdmin from './Admin/Pages/OfferAdmin';  
 import ScrollTop from './componenets/ScrollTop';
+import ChangePassword from './Admin/Pages/ChangePassword';
 function App() {
   return (
     <BrowserRouter>
@@ -98,7 +99,11 @@ function App() {
       <OfferAdmin/>
     </AdminRoute>
   } />
-
+ <Route path="/admin/chnage-passowrd" element={
+    <AdminRoute>
+      <ChangePassword/>
+    </AdminRoute>
+  } />
    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-conditions" element={<Terms />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />

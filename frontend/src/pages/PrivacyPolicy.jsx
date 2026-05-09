@@ -63,7 +63,7 @@ export default function PrivacyPolicy() {
 
             <ul className="policy-list">
               <li>Delivery partners (e.g. Shiprocket)</li>
-              <li>Payment gateways</li>
+              <li>Payment gateways (Razorpay)</li>
               <li>Legal authorities if required by law</li>
             </ul>
           </div>

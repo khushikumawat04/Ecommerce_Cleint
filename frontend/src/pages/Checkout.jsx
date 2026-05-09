@@ -548,13 +548,13 @@ You saved ₹{discount}
         {/* ================= STEP 3 ================= */}
         {step === 3 && (
          <div className="payment-card p-4 shadow-sm">
-
+{/* 
 <h4 className="fw-bold mb-4 border-bottom pb-3">
 Choose Payment Method
-</h4>
+</h4> */}
 
 {/* COD */}
-<label
+{/* <label
 className={`payment-option ${
 paymentMethod==="COD" ? "selected-payment" : ""
 }`}
@@ -565,16 +565,16 @@ checked={paymentMethod==="COD"}
 onChange={()=>setPaymentMethod("COD")}
 />
 
-<div className="ms-3">
+ <div className="ms-3">
 <h6 className="mb-1">
 💵 Cash on Delivery
 </h6>
 <small className="text-muted">
 Pay when order arrives
 </small>
-</div>
+</div> 
 
-</label>
+</label> */}
 
 
 {/* Online */}

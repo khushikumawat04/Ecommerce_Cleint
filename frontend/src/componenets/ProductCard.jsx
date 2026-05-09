@@ -89,10 +89,10 @@ return(
 
 
 {/* Existing discount badge */} 
- {product.discountPercent &&(
-<span className="discount-badge">
-{product.discountPercent}% OFF
-</span>
+{product.discountPercent > 0 && (
+  <span className="discount-badge">
+    {product.discountPercent}% OFF
+  </span>
 )}
 
 

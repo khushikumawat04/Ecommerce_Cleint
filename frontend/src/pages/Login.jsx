@@ -6,6 +6,7 @@ import Navbar from "../componenets/Navbar";
 import Footer from "../componenets/Footer";
 import Loading from "../componenets/Loading";
 import "../styles/login.css";
+import PasswordInput from "../componenets/PasswordInput";
 
 function Login() {
 
@@ -150,7 +151,7 @@ function Login() {
           />
 
 
-          <input
+          <PasswordInput
             className="login-input"
             type="password"
             placeholder="Password"

@@ -212,7 +212,11 @@ useEffect(() => {
                   onClick={() => navigate(`/product/${product._id}`)}
                 >
                   <img src={product.images?.[0]?.url} alt="" />
-                  <p>{product.name}</p>
+                  <p>
+  {product.name.length > 35
+    ? product.name.substring(0, 35) + "..."
+    : product.name}
+</p>
                 </div>
               ))}
             </div>

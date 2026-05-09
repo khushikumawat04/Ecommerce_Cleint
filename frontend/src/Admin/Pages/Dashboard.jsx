@@ -13,9 +13,14 @@ export default function Dashboard() {
     users: 0
   });
 
+
   useEffect(() => {
     fetchStats();
   }, []);
+
+
+
+
 
   const fetchStats = async () => {
     const token = localStorage.getItem("token");

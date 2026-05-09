@@ -5,7 +5,7 @@ const express = require("express");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
-const { register, login, createAdmin } = require("../controllers/authController");
+const { register, login, createAdmin,changePassword } = require("../controllers/authController");
 const protect = require("../middleware/authMiddleware");
 const User = require("../models/User"); 
 
@@ -77,6 +77,12 @@ router.delete("/address/:id", protect, async (req, res) => {
 
   res.json(user);
 });
+
+router.put(
+  "/change-password",
+  protect,
+  changePassword
+);
 
 
 

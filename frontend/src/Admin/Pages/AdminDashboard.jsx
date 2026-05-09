@@ -10,6 +10,15 @@ const [selectedOrder,setSelectedOrder]=useState(null);
 
 const [statusFilter,setStatusFilter]=useState("all");
 const [dateFilter,setDateFilter]=useState("");
+// for order selection for ship
+const [selectedOrders, setSelectedOrders] = useState([]);
+const handleCheckboxChange = (id) => {
+  setSelectedOrders((prev) =>
+    prev.includes(id)
+      ? prev.filter((orderId) => orderId !== id)
+      : [...prev, id]
+  );
+};
 
 const baseURL=process.env.REACT_APP_API_URL;
 
@@ -124,6 +133,51 @@ console.error(err);
 }
 };
 
+
+// BULK SHIP
+const shipSelectedOrders = async () => {
+
+  try {
+
+    if (selectedOrders.length === 0) {
+      toast.error("Please select orders");
+      return;
+    }
+
+    for (const id of selectedOrders) {
+
+      await axios.post(
+        `${baseURL}/api/admin/ship/${id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+    }
+
+    toast.success(
+      "Selected orders shipped successfully"
+    );
+
+    setSelectedOrders([]);
+
+    fetchOrders();
+
+  } catch (err) {
+
+    console.error(err);
+
+    toast.error(
+      err.response?.data?.message ||
+      "Bulk shipping failed"
+    );
+
+  }
+
+};
 // const syncTracking = async(id)=>{
 // try{
 
@@ -189,6 +243,14 @@ return(
 
 
 <div className="filters">
+ 
+<button
+  className=" btn btn-ship-all"
+  onClick={shipSelectedOrders}
+>
+  🚚 Ship Selected
+</button>
+
 
 <select
 value={statusFilter}
@@ -230,6 +292,35 @@ e.target.value
 
 <thead>
 <tr>
+    <th>
+
+<input
+  type="checkbox"
+  onChange={(e) => {
+
+    if (e.target.checked) {
+
+      const confirmedOrders =
+        filteredOrders
+          .filter(
+            o => o.orderStatus === "confirmed"
+          )
+          .map(o => o._id);
+
+      setSelectedOrders(
+        confirmedOrders
+      );
+
+    } else {
+
+      setSelectedOrders([]);
+
+    }
+
+  }}
+/>
+
+</th>
 <th>Order ID</th>
 <th>Total</th>
 <th>Status</th>
@@ -243,7 +334,26 @@ e.target.value
 
 {filteredOrders.map(order=>(
 
+
 <tr key={order._id}>
+{/* SINGLE CHECKBOX */}
+<th>
+
+{["confirmed"].includes(order.orderStatus) && (
+
+<input
+  type="checkbox"
+  checked={
+    selectedOrders.includes(order._id)
+  }
+  onChange={() =>
+    handleCheckboxChange(order._id)
+  }
+/>
+
+)}
+
+</th>
 
 <td>
 #{order._id.slice(-6)}
@@ -373,14 +483,14 @@ setSelectedOrder(order)
 
 
 
-{order.orderStatus==="confirmed" && (
+{/* {order.orderStatus==="confirmed" && (
 <button
 className="btn-ship"
 onClick={()=>shipOrder(order._id)}
 >
 🚚 Ship
 </button>
-)}
+)} */}
 
 {order.orderStatus==="processing" && (
 <button disabled className="btn-ship shipped">
