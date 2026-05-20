@@ -26,10 +26,11 @@ app.use(cors());
 // 2. WEBHOOK RAW BODY (MUST COME BEFORE express.json)
 // ======================
 app.use(
-  "/api/payment/webhook/razorpay-webhook",
-  express.raw({ type: "application/json" }),
-  express.json() // optional fallback for non-webhook routes
+"/api/payment/webhook",
+express.raw({ type: "application/json" })
 );
+
+app.use(express.json());
 
 // ======================
 // 3. NORMAL BODY PARSING

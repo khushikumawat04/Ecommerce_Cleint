@@ -12,61 +12,118 @@ router.post("/verify", verifyPayment);
 // ===============================
 // RAZORPAY WEBHOOK
 // ===============================
-router.post("/webhook/razorpay-webhook", async (req, res) => {
-  try {
-    const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
-    console.log("Webhook received:", req.body);
-    console.log("Webhook hit");
+router.post("/webhook", async (req, res) => {
 
-    const crypto = require("crypto");
+try {
 
-    const shasum = crypto.createHmac("sha256", secret);
+const secret =
+process.env.RAZORPAY_WEBHOOK_SECRET;
 
-    shasum.update(req.body); // RAW buffer
+// ======================
+// CREATE SIGNATURE
+// ======================
 
-    const digest = shasum.digest("hex");
+const shasum = crypto.createHmac(
+"sha256",
+secret
+);
 
-    const signature = req.headers["x-razorpay-signature"];
+// IMPORTANT
+shasum.update(req.body);
 
-    if (digest !== signature) {
-      return res.status(400).json({ success: false });
-    }
+const digest = shasum.digest("hex");
 
-    const event = JSON.parse(req.body.toString());
+const signature =
+req.headers["x-razorpay-signature"];
 
-    if (event.event === "payment.captured") {
-      const payment = event.payload.payment.entity;
+// ======================
+// VERIFY SIGNATURE
+// ======================
 
-      await Order.findOneAndUpdate(
-        { razorpayOrderId: payment.order_id },
-        {
-          paymentStatus: "paid",
-          orderStatus: "confirmed",
-          razorpayPaymentId: payment.id
-        }
-      );
-    }
+if (digest !== signature) {
 
-    if (event.event === "payment.failed") {
-      const payment = event.payload.payment.entity;
+console.log("Webhook signature failed");
 
-      await Order.findOneAndUpdate(
-        { razorpayOrderId: payment.order_id },
-        {
-          paymentStatus: "failed",
-          orderStatus: "cancelled"
-        }
-      );
-    }
+return res.status(400).json({
+success: false
+});
 
-    return res.json({ success: true });
+}
 
-  } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: err.message
-    });
-  }
+const event = JSON.parse(req.body).event;
+
+// ======================
+// PAYMENT CAPTURED
+// ======================
+
+if (event === "payment.captured") {
+
+const body = JSON.parse(req.body);
+
+const payment =
+body.payload.payment.entity;
+
+await Order.findOneAndUpdate(
+
+{
+razorpayOrderId:
+payment.order_id
+},
+
+{
+paymentStatus: "paid",
+orderStatus: "confirmed",
+razorpayPaymentId:
+payment.id
+}
+
+);
+
+console.log("Order updated successfully");
+}
+
+// ======================
+// PAYMENT FAILED
+// ======================
+
+if (event === "payment.failed") {
+
+const body = JSON.parse(req.body);
+
+const payment =
+body.payload.payment.entity;
+
+await Order.findOneAndUpdate(
+
+{
+razorpayOrderId:
+payment.order_id
+},
+
+{
+paymentStatus: "failed",
+orderStatus: "failed"
+}
+
+);
+
+console.log("Payment failed");
+}
+
+res.json({
+success: true
+});
+
+} catch (err) {
+
+console.log("Webhook Error:", err);
+
+res.status(500).json({
+success: false
+});
+
+}
+
 });
 
 module.exports = router;
