@@ -11,6 +11,7 @@ const passport = require("./config/passport");
 const contectRoutes = require("./routes/contactRoutes");  
 const offerRoutes = require("./routes/offerRoutes");
 const sendEmail = require("./Utils/SendEmail");
+require("./cron/cleanupOrders"); // Start the cleanup cron job
 dotenv.config();
 connectDB();
 

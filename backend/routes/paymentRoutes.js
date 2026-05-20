@@ -1,4 +1,7 @@
 const express = require("express");
+
+const crypto = require("crypto");
+const Order = require("../models/Orders");
 const router = express.Router();
 
 
@@ -13,126 +16,72 @@ router.post("/verify", verifyPayment);
 // =========================
 // WEBHOOK
 // =========================
-
 router.post("/webhook", async (req, res) => {
+  try {
+    console.log("Webhook Hit ✅");
 
-try {
+    const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
 
-console.log("Webhook Hit");
+    const signature = req.headers["x-razorpay-signature"];
 
-// =========================
-// VERIFY SIGNATURE
-// =========================
+    // IMPORTANT: use RAW BODY
+    const rawBody = req.body;
 
-const secret =
-process.env.RAZORPAY_WEBHOOK_SECRET;
-console.log("Secret:", secret);
+    const expectedSignature = crypto
+      .createHmac("sha256", secret)
+      .update(rawBody)
+      .digest("hex");
 
-const signature =
-req.headers["x-razorpay-signature"];
+    // if (expectedSignature !== signature) {
+    //   console.log("❌ Signature mismatch");
+    //   return res.status(400).json({ success: false });
+    // }
 
-const expectedSignature = crypto
-.createHmac("sha256", secret)
-.update(req.body)
-.digest("hex");
+    const body = JSON.parse(rawBody.toString());
 
-if (expectedSignature !== signature) {
+    console.log("Event:", body.event);
 
-console.log("Signature Failed");
+    // =======================
+    // PAYMENT SUCCESS
+    // =======================
+    if (body.event === "payment.captured") {
+      const payment = body.payload.payment.entity;
 
-return res.status(400).json({
-success: false
+      const updatedOrder = await Order.findOneAndUpdate(
+        { razorpayOrderId: payment.order_id },
+        {
+          paymentStatus: "paid",
+          orderStatus: "confirmed",
+          razorpayPaymentId: payment.id,
+        },
+        { new: true }
+      );
+
+      console.log("ORDER UPDATED ✅", updatedOrder);
+    }
+
+    // =======================
+    // PAYMENT FAILED
+    // =======================
+    if (body.event === "payment.failed") {
+      const payment = body.payload.payment.entity;
+
+      await Order.findOneAndUpdate(
+        { razorpayOrderId: payment.order_id },
+        {
+          paymentStatus: "failed",
+          orderStatus: "failed",
+        }
+      );
+
+      console.log("PAYMENT FAILED ❌");
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    console.log("WEBHOOK ERROR ❌", err.message);
+    res.status(500).json({ success: false });
+  }
 });
-
-}
-
-// =========================
-// PARSE BODY
-// =========================
-
-const body = JSON.parse(req.body.toString());
-
-console.log(body.event);
-
-// =========================
-// PAYMENT CAPTURED
-// =========================
-
-if (body.event === "payment.captured") {
-
-const payment =
-body.payload.payment.entity;
-
-console.log(payment.order_id);
-
-const updatedOrder =
-await Order.findOneAndUpdate(
-
-{
-razorpayOrderId:
-payment.order_id
-},
-
-{
-paymentStatus: "paid",
-orderStatus: "confirmed",
-razorpayPaymentId:
-payment.id
-},
-
-{
-new: true
-}
-
-);
-
-console.log(updatedOrder);
-
-console.log("ORDER UPDATED");
-}
-
-// =========================
-// PAYMENT FAILED
-// =========================
-
-if (body.event === "payment.failed") {
-
-const payment =
-body.payload.payment.entity;
-
-await Order.findOneAndUpdate(
-
-{
-razorpayOrderId:
-payment.order_id
-},
-
-{
-paymentStatus: "failed",
-orderStatus: "failed"
-}
-
-);
-
-console.log("PAYMENT FAILED");
-}
-
-res.json({
-success: true
-});
-
-} catch (err) {
-
-console.log("WEBHOOK ERROR");
-console.log(err);
-
-res.status(500).json({
-success: false
-});
-
-}
-
-});
-
 
 module.exports = router;
