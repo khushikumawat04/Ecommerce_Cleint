@@ -21,170 +21,290 @@ router.post("/checkout", protect, (req, res) => {
 // ✅ CREATE ORDER
 // routes/orderRoutes.js
 
-router.post("/create", protect, async (req,res)=>{
-try{
+// router.post("/create", protect, async (req, res) => {
 
-const {
-items,
-total,
-address,
-paymentMethod,
-paymentStatus="pending",
-orderStatus="confirmed",
-paymentId,
-subtotal,
-discount,
-couponCode
-}=req.body;
+// try {
 
-/* ---------- COUPON REVALIDATION ---------- */
+// const {
+// items,
+// total,
+// address,
+// paymentMethod,
+// paymentId,
+// razorpayOrderId,
+// subtotal,
+// discount,
+// couponCode
+// } = req.body;
 
-let verifiedDiscount = discount || 0;
-let verifiedTotal = total;
 
-if (couponCode) {
+// /* ---------- COUPON REVALIDATION ---------- */
 
-const offer = await Offer.findOne({
-code: couponCode.toUpperCase(),
-active: true
+// let verifiedDiscount = discount || 0;
+// let verifiedTotal = total;
+
+// if (couponCode) {
+
+// const offer = await Offer.findOne({
+// code: couponCode.toUpperCase(),
+// active: true
+// });
+
+// if (offer) {
+
+// verifiedDiscount =
+// (subtotal * offer.discountPercent) / 100;
+
+// verifiedTotal =
+// subtotal - verifiedDiscount;
+
+// }
+
+// }
+
+
+// /* ---------- PAYMENT STATUS LOGIC ---------- */
+
+// let paymentStatus = "pending";
+// let orderStatus = "pending";
+
+// // COD
+// if (paymentMethod === "COD") {
+
+// paymentStatus = "pending";
+// orderStatus = "confirmed";
+
+// }
+
+// // ONLINE
+// if (paymentMethod === "ONLINE") {
+
+// paymentStatus = "pending";
+// orderStatus = "pending";
+
+// }
+
+
+// /* ---------- CREATE ORDER ---------- */
+
+// // const order = await Order.create({
+
+// // userId: req.user._id,
+
+// // items,
+
+// // totalAmount: verifiedTotal,
+
+// // address,
+
+// // paymentMethod,
+
+// // paymentStatus,
+
+// // orderStatus,
+
+// // razorpayOrderId: razorpayOrderId || null,
+
+// // razorpayPaymentId: paymentId || null,
+
+// // subtotal,
+
+// // discount: verifiedDiscount,
+
+// // couponCode
+
+// // });
+
+// router.post("/create", protect, async (req,res)=>{
+// try{
+
+// const {
+// items,
+// subtotal,
+// discount,
+// total,
+// couponCode,
+// address,
+// paymentMethod
+// }=req.body;
+
+// let verifiedDiscount = discount || 0;
+// let verifiedTotal = total;
+
+// if(couponCode){
+
+// const offer = await Offer.findOne({
+// code: couponCode.toUpperCase(),
+// active:true
+// });
+
+// if(offer){
+
+// verifiedDiscount =
+// (subtotal * offer.discountPercent)/100;
+
+// verifiedTotal =
+// subtotal - verifiedDiscount;
+
+// }
+
+// }
+
+// const order = await Order.create({
+
+// userId:req.user._id,
+
+// items,
+
+// subtotal,
+
+// discount: verifiedDiscount,
+
+// couponCode,
+
+// totalAmount: verifiedTotal,
+
+// address,
+
+// paymentMethod,
+
+// // IMPORTANT
+// paymentStatus:"pending",
+
+// orderStatus:"pending"
+
+// });
+
+// res.json({
+// success:true,
+// orderId:order._id
+// });
+
+// }catch(err){
+
+// res.status(500).json({
+// success:false,
+// message:err.message
+// });
+
+// }
+// });
+// /* ---------- RESPONSE ---------- */
+
+// res.json({
+// success: true,
+// orderId: order._id
+// });
+
+
+// /* ---------- EMAILS ONLY FOR COD ---------- */
+
+// if (paymentMethod === "COD") {
+
+// try {
+
+// const user =
+// await User.findById(req.user._id);
+
+// await Promise.all([
+
+// sendEmail(
+// user.email,
+// "Order Confirmed 🛍️ | Karmaas",
+// `
+// <h2>Order Confirmed</h2>
+// <p>Your COD order has been placed successfully.</p>
+// <p>Order ID: ${order._id}</p>
+// `
+// ),
+
+// sendEmail(
+// process.env.EMAIL_USER,
+// `New COD Order #${order._id}`,
+// `
+// <h2>New COD Order</h2>
+// <p>Customer: ${user.name}</p>
+// <p>Total: ₹${verifiedTotal}</p>
+// `
+// )
+
+// ]);
+
+// } catch (emailErr) {
+
+// console.log(
+// "COD email error:",
+// emailErr.message
+// );
+
+// }
+
+// }
+
+// } catch (err) {
+
+// res.status(500).json({
+// success:false,
+// error: err.message
+// });
+
+// }
+
+// });
+
+
+router.post("/create", protect, async (req, res) => {
+  try {
+    const {
+      items,
+      subtotal,
+      discount,
+      total,
+      couponCode,
+      address,
+      paymentMethod
+    } = req.body;
+
+    let verifiedDiscount = discount || 0;
+    let verifiedTotal = total;
+
+    if (couponCode) {
+      const offer = await Offer.findOne({
+        code: couponCode.toUpperCase(),
+        active: true
+      });
+
+      if (offer) {
+        verifiedDiscount = (subtotal * offer.discountPercent) / 100;
+        verifiedTotal = subtotal - verifiedDiscount;
+      }
+    }
+
+    const order = await Order.create({
+      userId: req.user._id,
+      items,
+      subtotal,
+      discount: verifiedDiscount,
+      totalAmount: verifiedTotal,
+      couponCode,
+      address,
+      paymentMethod,
+      paymentStatus: "pending",
+      orderStatus: paymentMethod === "COD" ? "confirmed" : "pending"
+    });
+
+    return res.json({
+      success: true,
+      orderId: order._id
+    });
+
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: err.message
+    });
+  }
 });
-
-if(offer){
-
-verifiedDiscount =
-(subtotal * offer.discountPercent) / 100;
-
-verifiedTotal =
-subtotal - verifiedDiscount;
-
-}
-
-}
-/* ---------- THEN SAVE ORDER ---------- */
-
-const order = await Order.create({
-userId:req.user._id,
-items,
-totalAmount: verifiedTotal,
-address,
-paymentMethod,
-paymentStatus,
-orderStatus,
-razorpayPaymentId: paymentId || null,
-subtotal,
-discount: verifiedDiscount,
-couponCode
-});
-
-res.json({
-success:true,
-orderId:order._id
-});
-
-const user = await User.findById(req.user._id);
-
-
-// EMAILS (don't fail order if email fails)
-try{
-
-const adminSubject =
-paymentMethod==="COD"
-? `🛒 New COD Order #${order._id}`
-: `💳 New Prepaid Order #${order._id}`;
-
-Promise.all([
-
-// Customer Email
-sendEmail(
-user.email,
-"Order Confirmed 🛍️ | Karmaas",
-`
-<div style="font-family:Arial;background:#F1F1F1;padding:20px;">
-<div style="max-width:600px;margin:auto;background:#fff;border-radius:12px;overflow:hidden;">
-<div style="background:#00C853;color:#fff;padding:20px;text-align:center;">
-<h2>Karmaas 🌿</h2>
-</div>
-
-<div style="padding:20px;color:#212121;">
-<h3>Hi ${user.name},</h3>
-
-<p>Your order has been placed successfully 🎉</p>
-
-<p>
-<b>Order ID:</b> ${order._id}<br/>
-<ul>
-${items.map(i=>`
-<li>${i.name} × ${i.quantity} — ₹${i.price}</li>
-`).join("")}
-</ul>
-<b>Total:</b> ₹${verifiedTotal}<br/>
-<b>Payment:</b> ${paymentMethod}
-</p>
-
-<p>We'll notify you when your order ships 🚚</p>
-
-</div>
-</div>
-</div>
-`
-),
-
-// Admin Email
-sendEmail(
-process.env.EMAIL_USER,
-adminSubject,
-`
-<div style="font-family:Arial;background:#F1F1F1;padding:20px;">
-<div style="max-width:600px;margin:auto;background:#fff;border-radius:12px;overflow:hidden;">
-
-<div style="background:#00C853;color:#fff;padding:20px;text-align:center;">
-<h2>New Order Received 🌿</h2>
-</div>
-
-<div style="padding:20px;color:#212121;">
-
-<p><b>Order:</b> ${order._id}</p>
-<p><b>Customer:</b> ${user.name}</p>
-<p><b>Phone:</b> ${address.phone}</p>
-
-<p>
-<b>Address:</b><br/>
-${address.houseNo}, ${address.addressLine}<br/>
-${address.city}, ${address.state} - ${address.pincode}
-</p>
-
-<ul>
-${items.map(i=>`
-<li>${i.name} × ${i.quantity} — ₹${i.price}</li>
-`).join("")}
-</ul>
-
-<h3 style="color:#00C853;">
-Total: ₹${verifiedTotal}
-</h3>
-
-</div>
-</div>
-</div>
-`
-)
-
-]);
-
-}catch(emailErr){
-console.log("Email failed but order created:",emailErr.message);
-}
-
-
-
-}catch(err){
-res.status(500).json({
-error:err.message
-});
-}
-});
-
-
 // ✅ GET USER ORDERS
 router.get("/my-orders", protect, async (req, res) => {
   try {

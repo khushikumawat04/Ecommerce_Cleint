@@ -17,14 +17,35 @@ connectDB();
 
 const app = express();
 
-// Middleware
-app.use(express.json());
+// ======================
+// 1. CORS FIRST
+// ======================
 app.use(cors());
-app.use(require("express-session")({
-  secret: "secret",
-  resave: false,
-  saveUninitialized: false
-}));
+
+// ======================
+// 2. WEBHOOK RAW BODY (MUST COME BEFORE express.json)
+// ======================
+app.use(
+  "/api/payment/webhook",
+  express.raw({ type: "application/json" }),
+  express.json() // optional fallback for non-webhook routes
+);
+
+// ======================
+// 3. NORMAL BODY PARSING
+// ======================
+app.use(express.json());
+
+// ======================
+// 4. SESSION (if needed)
+// ======================
+app.use(
+  require("express-session")({
+    secret: "secret",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -37,6 +58,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/payment", paymentRoutes);
+
 app.use("/api/admin", adminRoutes);
 app.use("/api/contact", contectRoutes);
 app.use("/api/offers", offerRoutes);

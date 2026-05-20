@@ -52,20 +52,24 @@ subtotal:Number,
   // 🔥 ORDER STATUS (FOR TRACKING)
   orderStatus: {
     type: String,
-    enum: ["created", "confirmed","processing", "shipped", "delivered", "cancelled"],
-    default: "created"
+    enum: ["pending", "confirmed","processing", "shipped", "delivered", "cancelled"],
+    default: "pending"
   },
 
   // 🔥 RAZORPAY FIELDS
-  razorpayOrderId: String,
-  razorpayPaymentId: String,
-  razorpaySignature: String,
+ razorpayOrderId:{
+type:String,
+default:null
+},
 
-  // 🔥 RETRY SUPPORT
-  retryCount: {
-    type: Number,
-    default: 0
-  },
+ razorpayPaymentId:{
+type:String,
+default:null
+},
+  razorpaySignature: String,
+  
+
+ 
 
   // 🔥 OPTIONAL: DELIVERY TRACKING
 trackingId: String,

@@ -123,167 +123,95 @@ const handleContinue = async () => {
 
   // FINAL ORDER FUNCTION
 const handleFinalOrder = async () => {
-try {
+  try {
+    if (paymentMethod === "COD") {
+      const res = await fetch(`${baseURL}/api/orders/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        },
+        body: JSON.stringify({
+          items: cartItems.map(item => ({
+            productId: item._id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity
+          })),
+          subtotal: cartTotal,
+          discount,
+          total: finalTotal,
+          couponCode: coupon?.code,
+          address,
+          paymentMethod: "COD"
+        })
+      });
 
-if(paymentMethod==="COD"){
+      const data = await res.json();
 
-const res = await fetch(`${baseURL}/api/orders/create`,{
-method:"POST",
-headers:{
-"Content-Type":"application/json",
-Authorization:`Bearer ${localStorage.getItem("token")}`
-},
-body:JSON.stringify({
-items: cartItems.map(item=>({
-productId:item._id,
-name:item.name,
-price:item.price,
-quantity:item.quantity,
-image:item.images?.[0]?.url
-})),
-// total:cartTotal,
-subtotal: cartTotal,
-discount:
-discount,
-total: finalTotal,
-couponCode: coupon?.code || null,
-address,
-paymentMethod:"COD"
-})
-});
+      if (data.success) {
+        toast.success("Order placed");
+        clearCart();
+      }
 
-const data=await res.json();
+      return;
+    }
 
-if(data.success){
-toast.success("Order placed successfully 🎉");
-localStorage.removeItem("finalDiscount");
-localStorage.removeItem("finalOfferType");
-localStorage.removeItem("finalTotal");
+    // ONLINE FLOW
 
-setTimeout(()=>{
-clearCart();
-window.location.href="/";
-},2000);
-}
+    const orderRes = await fetch(`${baseURL}/api/orders/create`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`
+      },
+      body: JSON.stringify({
+        items: cartItems,
+        subtotal: cartTotal,
+        discount,
+        total: finalTotal,
+        couponCode: coupon?.code,
+        address,
+        paymentMethod: "ONLINE"
+      })
+    });
 
-}
+    const orderData = await orderRes.json();
 
-else{
+    const razorRes = await fetch(`${baseURL}/api/payment/create-order`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        amount: finalTotal,
+        orderId: orderData.orderId
+      })
+    });
 
-// ONLY create razorpay order first
-const razorRes = await fetch(
-`${baseURL}/api/payment/create-order`,
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body: JSON.stringify({
-  amount: Number(finalTotal) // MUST be rupees only
-})
-}
-);
+    const razorData = await razorRes.json();
 
-const razorData = await razorRes.json();
+    const options = {
+      key: process.env.REACT_APP_RAZORPAY_KEYID,
+      order_id: razorData.razorOrder.id,
 
-const options={
-key:process.env.REACT_APP_RAZORPAY_KEYID,
-amount:razorData.amount,
-currency:"INR",
-order_id:razorData.id,
+      handler: function () {
+        toast.success("Payment processing...");
 
-handler: async function(response){
+        // DO NOTHING ELSE
+        // webhook will update DB
+      }
+    };
 
-// verify payment
-const verifyRes=await fetch(
-`${baseURL}/api/payment/verify`,
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify(response)
-}
-);
+    const rzp = new window.Razorpay(options);
+    rzp.open();
 
-const verifyData=await verifyRes.json();
-
-if(verifyData.success){
-
-// NOW create order only after payment success
-const orderRes = await fetch(
-`${baseURL}/api/orders/create`,
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json",
-Authorization:`Bearer ${localStorage.getItem("token")}`
-},
-body:JSON.stringify({
-items: cartItems.map(item=>({
-productId:item._id,
-name:item.name,
-price:item.price,
-quantity:item.quantity,
-image:item.images?.[0]?.url
-})),
-// total:cartTotal,a
-subtotal: cartTotal,
-total: finalTotal,
-discount:
-discount ,
-offerType: offerType,
-couponCode: coupon?.code || null,
-address,
-paymentMethod:"ONLINE",
-paymentStatus:"Paid",
-orderStatus:"confirmed",
-paymentId:response.razorpay_payment_id
-})
-}
-);
-
-const orderData=await orderRes.json();
-
-if(orderData.success){
-toast.success("Payment successful 🎉");
-localStorage.removeItem("finalDiscount");
-localStorage.removeItem("finalOfferType");
-localStorage.removeItem("finalTotal");
-setTimeout(()=>{
-clearCart();
-window.location.href="/";
-},3000);
-}
-
-}else{
-toast.error("Payment verification failed ❌");
-}
-
-},
-
-modal:{
-ondismiss:function(){
-toast.error("Payment cancelled");
-}
-}
+  } catch (err) {
+    toast.error("Payment failed");
+  }
 };
 
-const rzp = new window.Razorpay(options);
 
-// Payment failed event
-rzp.on("payment.failed",function(){
-toast.error("Payment failed ❌");
-});
-
-rzp.open();
-
-}
-
-}catch(err){
-console.error(err);
-}
-};
 const saveAddressToDB = async () => {
   try {
     await fetch(`${baseURL}/api/auth/address`, {
