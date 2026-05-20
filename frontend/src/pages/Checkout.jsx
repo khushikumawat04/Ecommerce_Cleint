@@ -13,7 +13,7 @@ function Checkout() {
 
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("COD");
+const [paymentMethod, setPaymentMethod] = useState("ONLINE");
 
 
 const [coupon,setCoupon]=useState(()=>{
@@ -579,12 +579,12 @@ You saved ₹{discount}
 
 
 <button
-className="btn btn-green w-100 mt-4  fw-bold"
-onClick={handleFinalOrder}
+  className="btn btn-green w-100 mt-4 fw-bold"
+  onClick={handleFinalOrder}
+  disabled={paymentMethod !== "ONLINE"}
 >
-{paymentMethod==="COD"
-? "Place Order 🛍"
-: "Proceed To Pay 💳"}
+  {/* Proceed To Pay 💳 */}
+  Currently Not Accepting Orders !
 </button>
 
 </div>

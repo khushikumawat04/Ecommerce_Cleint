@@ -68,7 +68,10 @@ default:null
 },
   razorpaySignature: String,
   
-
+paymentProcessed: {
+  type: Boolean,
+  default: false
+},
  
 
   // 🔥 OPTIONAL: DELIVERY TRACKING

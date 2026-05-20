@@ -3,6 +3,7 @@ const express = require("express");
 const crypto = require("crypto");
 const Order = require("../models/Orders");
 const router = express.Router();
+const User = require("../models/User");
 const sendEmail = require("../Utils/SendEmail");
 
 
@@ -33,10 +34,10 @@ router.post("/webhook", async (req, res) => {
       .update(rawBody)
       .digest("hex");
 
-    // if (expectedSignature !== signature) {
-    //   console.log("❌ Signature mismatch");
-    //   return res.status(400).json({ success: false });
-    // }
+    if (expectedSignature !== signature) {
+      console.log("❌ Signature mismatch");
+      return res.status(400).json({ success: false });
+    }
 
     const body = JSON.parse(rawBody.toString());
 
@@ -335,7 +336,7 @@ router.post("/webhook", async (req, res) => {
     ),
 
     sendEmail(
-      process.env.EMAIL_USER,
+      process.env.BREVO_SENDER_EMAIL,
       `New Paid Order #${order._id}`,
       adminEmail
     )
