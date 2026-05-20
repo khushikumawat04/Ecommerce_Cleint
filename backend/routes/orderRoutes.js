@@ -254,56 +254,107 @@ router.post("/checkout", protect, (req, res) => {
 
 
 router.post("/create", protect, async (req, res) => {
-  try {
-    const {
-      items,
-      subtotal,
-      discount,
-      total,
-      couponCode,
-      address,
-      paymentMethod
-    } = req.body;
 
-    let verifiedDiscount = discount || 0;
-    let verifiedTotal = total;
+try {
 
-    if (couponCode) {
-      const offer = await Offer.findOne({
-        code: couponCode.toUpperCase(),
-        active: true
-      });
+const {
+items,
+subtotal,
+discount,
+total,
+couponCode,
+address,
+paymentMethod
+} = req.body;
 
-      if (offer) {
-        verifiedDiscount = (subtotal * offer.discountPercent) / 100;
-        verifiedTotal = subtotal - verifiedDiscount;
-      }
-    }
+// =======================
+// VERIFY COUPON
+// =======================
 
-    const order = await Order.create({
-      userId: req.user._id,
-      items,
-      subtotal,
-      discount: verifiedDiscount,
-      totalAmount: verifiedTotal,
-      couponCode,
-      address,
-      paymentMethod,
-      paymentStatus: "pending",
-      orderStatus: paymentMethod === "COD" ? "confirmed" : "pending"
-    });
+let verifiedDiscount = discount || 0;
+let verifiedTotal = total;
 
-    return res.json({
-      success: true,
-      orderId: order._id
-    });
+if (couponCode) {
 
-  } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: err.message
-    });
-  }
+const offer = await Offer.findOne({
+code: couponCode.toUpperCase(),
+active: true
+});
+
+if (offer) {
+
+verifiedDiscount =
+(subtotal * offer.discountPercent) / 100;
+
+verifiedTotal =
+subtotal - verifiedDiscount;
+
+}
+
+}
+
+// =======================
+// PAYMENT STATUS
+// =======================
+
+let paymentStatus = "pending";
+let orderStatus = "pending";
+
+if (paymentMethod === "COD") {
+
+paymentStatus = "pending";
+orderStatus = "confirmed";
+
+}
+
+// =======================
+// CREATE ORDER
+// =======================
+
+const order = await Order.create({
+
+userId: req.user._id,
+
+items,
+
+subtotal,
+
+discount: verifiedDiscount,
+
+couponCode,
+
+totalAmount: verifiedTotal,
+
+address,
+
+paymentMethod,
+
+paymentStatus,
+
+orderStatus
+
+});
+
+// =======================
+// RESPONSE
+// =======================
+
+res.json({
+success: true,
+orderId: order._id
+});
+
+} catch (err) {
+
+console.log(err);
+
+res.status(500).json({
+success: false,
+message: err.message
+});
+
+}
+
 });
 // ✅ GET USER ORDERS
 router.get("/my-orders", protect, async (req, res) => {

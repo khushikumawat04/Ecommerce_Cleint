@@ -15,6 +15,8 @@ router.post("/verify", verifyPayment);
 router.post("/webhook/razorpay-webhook", async (req, res) => {
   try {
     const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+    console.log("Webhook received:", req.body);
+    console.log("Webhook hit");
 
     const crypto = require("crypto");
 

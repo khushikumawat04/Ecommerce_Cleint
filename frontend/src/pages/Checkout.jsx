@@ -192,16 +192,28 @@ const handleFinalOrder = async () => {
     const razorData = await razorRes.json();
 
     const options = {
-      key: process.env.REACT_APP_RAZORPAY_KEYID,
-      order_id: razorData.razorOrder.id,
 
-      handler: function () {
-        toast.success("Payment processing...");
+key: process.env.REACT_APP_RAZORPAY_KEYID,
 
-        // DO NOTHING ELSE
-        // webhook will update DB
-      }
-    };
+amount: razorData.razorOrder.amount,
+
+currency: "INR",
+
+order_id: razorData.razorOrder.id,
+
+handler: function () {
+
+toast.success("Payment successful");
+
+clearCart();
+
+setTimeout(() => {
+window.location.href = "/my-orders";
+}, 2000);
+
+}
+
+};
 
     const rzp = new window.Razorpay(options);
     rzp.open();
