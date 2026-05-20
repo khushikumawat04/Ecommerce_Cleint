@@ -9,40 +9,36 @@ const { createOrder, verifyPayment } = require("../controllers/paymentController
 router.post("/create-order", createOrder);
 router.post("/verify", verifyPayment);
 
-// ===============================
-// RAZORPAY WEBHOOK
-// ===============================
+
+// =========================
+// WEBHOOK
+// =========================
+
 router.post("/webhook", async (req, res) => {
 
 try {
 
+console.log("Webhook Hit");
+
+// =========================
+// VERIFY SIGNATURE
+// =========================
+
 const secret =
 process.env.RAZORPAY_WEBHOOK_SECRET;
-
-// ======================
-// CREATE SIGNATURE
-// ======================
-
-const shasum = crypto.createHmac(
-"sha256",
-secret
-);
-
-// IMPORTANT
-shasum.update(req.body);
-
-const digest = shasum.digest("hex");
+console.log("Secret:", secret);
 
 const signature =
 req.headers["x-razorpay-signature"];
 
-// ======================
-// VERIFY SIGNATURE
-// ======================
+const expectedSignature = crypto
+.createHmac("sha256", secret)
+.update(req.body)
+.digest("hex");
 
-if (digest !== signature) {
+if (expectedSignature !== signature) {
 
-console.log("Webhook signature failed");
+console.log("Signature Failed");
 
 return res.status(400).json({
 success: false
@@ -50,19 +46,26 @@ success: false
 
 }
 
-const event = JSON.parse(req.body).event;
+// =========================
+// PARSE BODY
+// =========================
 
-// ======================
+const body = JSON.parse(req.body.toString());
+
+console.log(body.event);
+
+// =========================
 // PAYMENT CAPTURED
-// ======================
+// =========================
 
-if (event === "payment.captured") {
-
-const body = JSON.parse(req.body);
+if (body.event === "payment.captured") {
 
 const payment =
 body.payload.payment.entity;
 
+console.log(payment.order_id);
+
+const updatedOrder =
 await Order.findOneAndUpdate(
 
 {
@@ -75,20 +78,24 @@ paymentStatus: "paid",
 orderStatus: "confirmed",
 razorpayPaymentId:
 payment.id
+},
+
+{
+new: true
 }
 
 );
 
-console.log("Order updated successfully");
+console.log(updatedOrder);
+
+console.log("ORDER UPDATED");
 }
 
-// ======================
+// =========================
 // PAYMENT FAILED
-// ======================
+// =========================
 
-if (event === "payment.failed") {
-
-const body = JSON.parse(req.body);
+if (body.event === "payment.failed") {
 
 const payment =
 body.payload.payment.entity;
@@ -107,7 +114,7 @@ orderStatus: "failed"
 
 );
 
-console.log("Payment failed");
+console.log("PAYMENT FAILED");
 }
 
 res.json({
@@ -116,7 +123,8 @@ success: true
 
 } catch (err) {
 
-console.log("Webhook Error:", err);
+console.log("WEBHOOK ERROR");
+console.log(err);
 
 res.status(500).json({
 success: false
@@ -125,5 +133,6 @@ success: false
 }
 
 });
+
 
 module.exports = router;
