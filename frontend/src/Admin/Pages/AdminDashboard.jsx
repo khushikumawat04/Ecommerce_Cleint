@@ -551,7 +551,19 @@ onClick={()=>shipOrder(order._id)}
 </p>
 
 <p>
-<strong>Total:</strong>
+<strong>Subtotal:</strong>
+₹{selectedOrder.subtotal || selectedOrder.totalAmount}
+</p>
+
+{selectedOrder.discount > 0 && (
+<p>
+<strong>Discount:</strong>
+- ₹{selectedOrder.discount}
+</p>
+)}
+
+<p>
+<strong>Total Paid:</strong>
 ₹{selectedOrder.totalAmount}
 </p>
 
@@ -573,15 +585,37 @@ className={`status-badge ${selectedOrder.orderStatus}`}
 
 <span
 className={
-selectedOrder.paymentStatus==="paid"
+selectedOrder.paymentStatus === "paid"
 ? "payment paid"
 : "payment pending"
 }
 >
 {selectedOrder.paymentStatus}
 </span>
-
 </p>
+
+{/* PAYMENT DETAILS */}
+<p>
+<strong>Payment Method:</strong>
+{" "}
+{selectedOrder.paymentMethod}
+</p>
+
+{selectedOrder.razorpayPaymentId && (
+<p>
+<strong>Razorpay Payment ID:</strong>
+{" "}
+{selectedOrder.razorpayPaymentId}
+</p>
+)}
+
+{selectedOrder.razorpayOrderId && (
+<p>
+<strong>Razorpay Order ID:</strong>
+{" "}
+{selectedOrder.razorpayOrderId}
+</p>
+)}
 
 </div>
 
@@ -591,17 +625,36 @@ selectedOrder.paymentStatus==="paid"
 
 <h5>🛒 Items</h5>
 
-{selectedOrder.items.map(
-(item,i)=>(
+{selectedOrder.items.map((item, i) => (
+
 <div
 key={i}
 className="item-row"
 >
-<span>{item.name}</span>
-<span>x {item.quantity}</span>
+
+<div className="item-left">
+
+<p className="item-name">
+{item.name}
+</p>
+
+<small className="item-price">
+
+₹{item.price} × {item.quantity}
+
+</small>
+
 </div>
-)
-)}
+
+<div className="item-total">
+
+₹{item.price * item.quantity}
+
+</div>
+
+</div>
+
+))}
 
 
 <hr/>
@@ -668,14 +721,11 @@ Track Shipment
 )}
 
 
-
 <button
-className="btn-close"
-onClick={()=>
-setSelectedOrder(null)
-}
+className="mx-3 btn btn-danger"
+onClick={() => setSelectedOrder(null)}
 >
-Close ❌
+✖ Close
 </button>
 
 </div>
