@@ -47,195 +47,298 @@ exports.getUsersCount = async (req, res) => {
   }
 };
 
-exports.updateOrderStatus = async (req,res)=>{
-try{
+// exports.updateOrderStatus = async (req,res)=>{
+// try{
 
-console.log("Update hit");
+// console.log("Update hit");
 
-const status = req.body.status?.toLowerCase().trim();
+// const status = req.body.status?.toLowerCase().trim();
 
-const order = await Order.findById(req.params.id);
+// const order = await Order.findById(req.params.id);
 
-if(!order){
- return res.status(404).json({
-  message:"Order not found"
- });
-}
+// if(!order){
+//  return res.status(404).json({
+//   message:"Order not found"
+//  });
+// }
 
-if(order.orderStatus==="cancelled"){
- return res.status(400).json({
-   message:"Cancelled order cannot be updated"
- });
-}
+// if(order.orderStatus==="cancelled"){
+//  return res.status(400).json({
+//    message:"Cancelled order cannot be updated"
+//  });
+// }
 
-/* ADD THIS BLOCK HERE */
-const validTransitions = {
-  created: ["confirmed"],
-  confirmed: ["processing"],   // ✅ allow move to processing
-  processing: ["shipped"],     // ✅ allow move to shipped
-  shipped: ["delivered"],      // ✅ final step
-  delivered: [],               // ❌ locked
-  cancelled: []                // ❌ locked
+// /* ADD THIS BLOCK HERE */
+// const validTransitions = {
+//   created: ["confirmed"],
+//   confirmed: ["processing"],   // ✅ allow move to processing
+//   processing: ["shipped"],     // ✅ allow move to shipped
+//   shipped: ["delivered"],      // ✅ final step
+//   delivered: [],               // ❌ locked
+//   cancelled: []                // ❌ locked
+// };
+
+// if(
+// !validTransitions[
+// order.orderStatus
+// ].includes(status)
+// ){
+//  return res.status(400).json({
+//    message:
+// `Invalid transition:
+// ${order.orderStatus} -> ${status}`
+//  });
+// }
+// /* END BLOCK */
+
+// // update
+// order.orderStatus=status;
+
+// if(status==="shipped"){
+//  order.shippedAt=new Date();
+// }
+
+// if(status==="delivered"){
+//  order.deliveredAt=new Date();
+// }
+
+// await order.save();
+
+// const user=await User.findById(order.userId);
+
+// if(!user){
+//  return res.status(404).json({
+//    message:"User not found"
+//  });
+// }
+
+// try{
+
+// if (status === "shipped") {
+//   console.log("Sending shipped email");
+
+//   await sendEmail(
+//     user.email,
+//     "Your Order Has Been Shipped 🚚 | Karmaas",
+//     `
+//     <div style="font-family:Arial;background:#f6f6f6;padding:20px;">
+
+//       <div style="max-width:600px;margin:auto;background:#fff;border-radius:10px;overflow:hidden;">
+
+//         <!-- HEADER -->
+//         <div style="background:#1e88e5;color:#fff;padding:20px;text-align:center;">
+//           <h2 style="margin:0;">KARMAA'S 🌿</h2>
+//           <p style="margin-top:5px;">Your Order is On the Way</p>
+//         </div>
+
+//         <!-- BODY -->
+//         <div style="padding:25px;color:#333;">
+
+//           <h3>Hi ${user.name}, 👋</h3>
+
+//           <p>Great news! Your order has been <b>shipped successfully</b> 🚚</p>
+
+//           <div style="background:#f5f5f5;padding:15px;border-radius:8px;margin:15px 0;">
+//             <p><strong>Order ID:</strong> ${order._id}</p>
+//             <p><strong>Shipped On:</strong> ${new Date().toLocaleString()}</p>
+//             <p><strong>Status:</strong> Shipped 🚚</p>
+//           </div>
+
+//           <p>Your package is on its way and will reach you soon. You will receive updates as it moves.</p>
+
+//           <div style="text-align:center;margin:20px 0;">
+//             <a href="https://karmaass.com"
+//               style="background:#2e7d32;color:#fff;padding:12px 18px;text-decoration:none;border-radius:6px;">
+//               Track Order
+//             </a>
+//           </div>
+
+//           <p>Thank you for shopping with us ❤️</p>
+
+//           <p><b>Karmaas Team</b></p>
+
+//         </div>
+
+//       </div>
+//     </div>
+//     `
+//   );
+// }
+
+
+// if (status === "delivered") {
+//   console.log("Sending delivered email");
+
+//   await sendEmail(
+//     user.email,
+//     "Order Delivered 🎉 | Karmaas",
+//     `
+//     <div style="font-family:Arial;background:#f6f6f6;padding:20px;">
+
+//       <div style="max-width:600px;margin:auto;background:#fff;border-radius:10px;overflow:hidden;">
+
+//         <!-- HEADER -->
+//         <div style="background:#2e7d32;color:#fff;padding:20px;text-align:center;">
+//           <h2 style="margin:0;">KARMAA'S 🌿</h2>
+//           <p style="margin-top:5px;">Order Successfully Delivered</p>
+//         </div>
+
+//         <!-- BODY -->
+//         <div style="padding:25px;color:#333;">
+
+//           <h3>Hi ${user.name}, 👋</h3>
+
+//           <p>Your order has been <b>delivered successfully</b> 🎉</p>
+
+//           <div style="background:#f5f5f5;padding:15px;border-radius:8px;margin:15px 0;">
+//             <p><strong>Order ID:</strong> ${order._id}</p>
+//             <p><strong>Delivered On:</strong> ${new Date().toLocaleString()}</p>
+//             <p><strong>Status:</strong> Delivered 🎉</p>
+//           </div>
+
+//           <p>We hope you loved your purchase ❤️</p>
+//           <p>If you have any feedback, feel free to reach out.</p>
+
+//           <div style="text-align:center;margin:20px 0;">
+//             <a href="https://karmaass.com"
+//               style="background:var(--primary-color);color:#fff;padding:12px 18px;text-decoration:none;border-radius:6px;">
+//               Shop Again
+//             </a>
+//           </div>
+
+//           <p>We look forward to serving you again 🙏</p>
+
+//           <p><b>Karmaas Team</b></p>
+
+//         </div>
+
+//       </div>
+//     </div>
+//     `
+//   );
+// }
+
+// }catch(emailErr){
+//  console.error("Email error:",emailErr);
+// }
+
+// res.json({
+// success:true,
+// message:"Order status updated",
+// order
+// });
+
+// }catch(err){
+// console.error(err);
+// res.status(500).json({
+// error:err.message
+// });
+// }
+// };
+
+
+exports.updateOrderStatus = async (req, res) => {
+  try {
+    console.log("Update hit");
+
+    const status = req.body.status?.toLowerCase().trim();
+
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    // block updates after delivered/cancelled (final states)
+    if (["delivered", "cancelled"].includes(order.orderStatus)) {
+      return res.status(400).json({
+        message: `Order already ${order.orderStatus}, cannot be updated`
+      });
+    }
+
+    // NEW FLOW TRANSITIONS
+    const validTransitions = {
+      pending: ["confirmed", "cancelled"],
+      confirmed: ["ready_to_ship", "cancelled"],
+      ready_to_ship: ["shipped", "cancelled"],
+      shipped: ["delivered"],
+      delivered: [],
+      cancelled: [],
+      returned: []
+    };
+
+    const allowedNext = validTransitions[order.orderStatus] || [];
+
+    if (!allowedNext.includes(status)) {
+      return res.status(400).json({
+        message: `Invalid transition: ${order.orderStatus} -> ${status}`
+      });
+    }
+
+    // update status
+    order.orderStatus = status;
+
+    // timestamps
+    if (status === "shipped") {
+      order.shippedAt = new Date();
+    }
+
+    if (status === "delivered") {
+      order.deliveredAt = new Date();
+    }
+
+    if (status === "cancelled") {
+      order.cancelledAt = new Date();
+    }
+
+    await order.save();
+
+    const user = await User.findById(order.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // EMAILS
+    try {
+      // SHIPPED EMAIL
+      if (status === "shipped") {
+        console.log("Sending shipped email");
+
+        await sendEmail(
+          user.email,
+          "Your Order Has Been Shipped 🚚 | Karmaas",
+          `Your order ${order._id} has been shipped.`
+        );
+      }
+
+      // DELIVERED EMAIL
+      if (status === "delivered") {
+        console.log("Sending delivered email");
+
+        await sendEmail(
+          user.email,
+          "Order Delivered 🎉 | Karmaas",
+          `Your order ${order._id} has been delivered.`
+        );
+      }
+    } catch (emailErr) {
+      console.error("Email error:", emailErr);
+    }
+
+    return res.json({
+      success: true,
+      message: "Order status updated",
+      order
+    });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      error: err.message
+    });
+  }
 };
-
-if(
-!validTransitions[
-order.orderStatus
-].includes(status)
-){
- return res.status(400).json({
-   message:
-`Invalid transition:
-${order.orderStatus} -> ${status}`
- });
-}
-/* END BLOCK */
-
-// update
-order.orderStatus=status;
-
-if(status==="shipped"){
- order.shippedAt=new Date();
-}
-
-if(status==="delivered"){
- order.deliveredAt=new Date();
-}
-
-await order.save();
-
-const user=await User.findById(order.userId);
-
-if(!user){
- return res.status(404).json({
-   message:"User not found"
- });
-}
-
-try{
-
-if (status === "shipped") {
-  console.log("Sending shipped email");
-
-  await sendEmail(
-    user.email,
-    "Your Order Has Been Shipped 🚚 | Karmaas",
-    `
-    <div style="font-family:Arial;background:#f6f6f6;padding:20px;">
-
-      <div style="max-width:600px;margin:auto;background:#fff;border-radius:10px;overflow:hidden;">
-
-        <!-- HEADER -->
-        <div style="background:#1e88e5;color:#fff;padding:20px;text-align:center;">
-          <h2 style="margin:0;">KARMAA'S 🌿</h2>
-          <p style="margin-top:5px;">Your Order is On the Way</p>
-        </div>
-
-        <!-- BODY -->
-        <div style="padding:25px;color:#333;">
-
-          <h3>Hi ${user.name}, 👋</h3>
-
-          <p>Great news! Your order has been <b>shipped successfully</b> 🚚</p>
-
-          <div style="background:#f5f5f5;padding:15px;border-radius:8px;margin:15px 0;">
-            <p><strong>Order ID:</strong> ${order._id}</p>
-            <p><strong>Shipped On:</strong> ${new Date().toLocaleString()}</p>
-            <p><strong>Status:</strong> Shipped 🚚</p>
-          </div>
-
-          <p>Your package is on its way and will reach you soon. You will receive updates as it moves.</p>
-
-          <div style="text-align:center;margin:20px 0;">
-            <a href="https://karmaass.com"
-              style="background:#2e7d32;color:#fff;padding:12px 18px;text-decoration:none;border-radius:6px;">
-              Track Order
-            </a>
-          </div>
-
-          <p>Thank you for shopping with us ❤️</p>
-
-          <p><b>Karmaas Team</b></p>
-
-        </div>
-
-      </div>
-    </div>
-    `
-  );
-}
-
-
-if (status === "delivered") {
-  console.log("Sending delivered email");
-
-  await sendEmail(
-    user.email,
-    "Order Delivered 🎉 | Karmaas",
-    `
-    <div style="font-family:Arial;background:#f6f6f6;padding:20px;">
-
-      <div style="max-width:600px;margin:auto;background:#fff;border-radius:10px;overflow:hidden;">
-
-        <!-- HEADER -->
-        <div style="background:#2e7d32;color:#fff;padding:20px;text-align:center;">
-          <h2 style="margin:0;">KARMAA'S 🌿</h2>
-          <p style="margin-top:5px;">Order Successfully Delivered</p>
-        </div>
-
-        <!-- BODY -->
-        <div style="padding:25px;color:#333;">
-
-          <h3>Hi ${user.name}, 👋</h3>
-
-          <p>Your order has been <b>delivered successfully</b> 🎉</p>
-
-          <div style="background:#f5f5f5;padding:15px;border-radius:8px;margin:15px 0;">
-            <p><strong>Order ID:</strong> ${order._id}</p>
-            <p><strong>Delivered On:</strong> ${new Date().toLocaleString()}</p>
-            <p><strong>Status:</strong> Delivered 🎉</p>
-          </div>
-
-          <p>We hope you loved your purchase ❤️</p>
-          <p>If you have any feedback, feel free to reach out.</p>
-
-          <div style="text-align:center;margin:20px 0;">
-            <a href="https://karmaass.com"
-              style="background:var(--primary-color);color:#fff;padding:12px 18px;text-decoration:none;border-radius:6px;">
-              Shop Again
-            </a>
-          </div>
-
-          <p>We look forward to serving you again 🙏</p>
-
-          <p><b>Karmaas Team</b></p>
-
-        </div>
-
-      </div>
-    </div>
-    `
-  );
-}
-
-}catch(emailErr){
- console.error("Email error:",emailErr);
-}
-
-res.json({
-success:true,
-message:"Order status updated",
-order
-});
-
-}catch(err){
-console.error(err);
-res.status(500).json({
-error:err.message
-});
-}
-};
-
 
 /* ---------------- SHIP ORDER ---------------- */
 
@@ -298,182 +401,6 @@ exports.shipOrder = async (req, res) => {
   }
 };
 
-
-/* make sure generateToken + token
-exist in this file or import them */
-// exports.syncShipment = async (req,res)=>{
-// try{
-
-// const order = await Order.findById(
-// req.params.id
-// );
-
-// if(!order){
-//  return res.status(404).json({
-//   success:false,
-//   message:"Order not found"
-//  });
-// }
-
-// if(!order.shipmentId){
-//  return res.status(400).json({
-//   success:false,
-//   message:"No shipment id found"
-//  });
-// }
-
-// console.log(
-// "Syncing shipment:",
-// order.shipmentId
-// );
-//  console.log(await generateToken())
-
-// /* fresh token */
-// let token = await generateToken();
-
-// let tracking;
-
-
-// /* TRACKING CALL */
-// try{
-
-// tracking = await axios.get(
-// `https://apiv2.shiprocket.in/v1/external/courier/track/shipment/${order.shipmentId}`,
-// {
-// headers:{
-// Authorization:`Bearer ${token}`
-// }
-// }
-// );
-
-// }catch(err){
-
-// /* auto retry if token expired */
-// if(err.response?.status===401){
-
-// console.log(
-// "Token expired. Regenerating..."
-// );
-
-// token = await generateToken();
-
-
-// tracking = await axios.get(
-// `https://apiv2.shiprocket.in/v1/external/shipments/${order.shipmentId}`,
-// {
-// headers:{
-// Authorization:`Bearer ${token}`
-// }
-// }
-// );
-
-// }else{
-// throw err;
-// }
-
-// }
-
-
-
-// console.log(
-// "TRACKING RESPONSE:",
-// JSON.stringify(
-// tracking.data,
-// null,
-// 2
-// )
-// );
-
-
-// const track =
-// tracking.data?.tracking_data
-// ?.shipment_track?.[0] || {};
-
-
-// const awb =
-// track.awb_code || "";
-
-// const courier =
-// track.courier_name ||
-// order.courier ||
-// "Pending Assignment";
-
-
-// const shipmentStatus =
-// track.current_status ||
-// "Processing";
-
-
-
-// await Order.findByIdAndUpdate(
-// order._id,
-// {
-// awbCode:awb,
-
-// trackingId:awb,
-
-// courier:courier,
-
-// trackingUrl:
-// awb
-// ? `https://shiprocket.co/tracking/${awb}`
-// : "",
-
-// shipmentStatus,
-
-// awbSyncedAt:new Date()
-// }
-// );
-
-
-// return res.json({
-// success:true,
-// message:
-// awb
-// ? "Tracking synced successfully"
-// : "Shipment exists but AWB not assigned yet"
-// });
-
-
-// }catch(err){
-
-// console.log(
-// "====== SYNC ERROR ======"
-// );
-
-// console.log(
-// "Status:",
-// err.response?.status
-// );
-
-// console.log(
-// "Data:",
-// JSON.stringify(
-// err.response?.data,
-// null,
-// 2
-// )
-// );
-
-// console.log(
-// "Message:",
-// err.message
-// );
-
-
-// return res.status(500).json({
-// success:false,
-// message:
-// err.response?.data?.message ||
-// err.message ||
-// "Tracking sync failed"
-// });
-
-// }
-// };
-
-
-// Webhook shiprocket
 
 
 // exports.shiprocketWebhook = async (req,res)=>{
@@ -719,6 +646,8 @@ exist in this file or import them */
 // };
 
 
+
+
 exports.shiprocketWebhook = async (req, res) => {
   try {
     // ---------------- SECURITY CHECK ----------------
@@ -748,7 +677,7 @@ exports.shiprocketWebhook = async (req, res) => {
       return res.sendStatus(200);
     }
 
-    // ---------------- UPDATE AWB ----------------
+    // ---------------- SAVE AWB ----------------
     if (awb_code && !order.awbCode) {
       order.awbCode = awb_code;
       order.trackingId = awb_code;
@@ -756,71 +685,171 @@ exports.shiprocketWebhook = async (req, res) => {
     }
 
     // ---------------- NORMALIZE STATUS ----------------
-    const status = (current_status || shipment_status || "")
+    const statusRaw = (current_status || shipment_status || "")
       .toString()
       .toUpperCase()
-      .trim();
+      .trim()
+      .replace(/\s+/g, "_"); // IN TRANSIT → IN_TRANSIT
 
-    console.log("Normalized Status:", status);
+    console.log("Normalized Status:", statusRaw);
 
     // ---------------- SHIPPED STATES ----------------
     const shippedStates = [
       "AWB_ASSIGNED",
       "PICKUP_SCHEDULED",
-      "IN TRANSIT",
-      "OUT FOR DELIVERY",
+      "IN_TRANSIT",
+      "OUT_FOR_DELIVERY",
     ];
 
-    if (shippedStates.includes(status)) {
-      if (order.orderStatus === "processing") {
-        order.orderStatus = "shipped";
-        order.shippedAt = new Date();
+    // ---------------- DELIVERED STATES ----------------
+    const deliveredStates = [
+      "DELIVERED",
+      "DELIVERED_TO_CUSTOMER",
+      "SHIPMENT_DELIVERED",
+    ];
 
-        // async email (non-blocking)
-        setImmediate(async () => {
-          try {
-            const user = await User.findById(order.userId);
+    // ---------------- RTO STATES ----------------
+    const rtoStates = [
+      "RTO_INITIATED",
+      "RTO_DELIVERED",
+      "RETURN_TO_ORIGIN",
+      "RTO_IN_TRANSIT",
+    ];
 
-            if (user?.email) {
-              await sendEmail(
-                user.email,
-                "Your Order Has Been Shipped 🚚 | Karmaas",
-                `<p>Hi ${user.name}, your order ${order._id} has been shipped.</p>`
-              );
-            }
-          } catch (e) {
-            console.log("Email error:", e.message);
-          }
-        });
-      }
+    // ================= SHIPPED =================
+    if (
+      shippedStates.includes(statusRaw) &&
+      order.orderStatus === "ready_to_ship"
+    ) {
+      order.orderStatus = "shipped";
+      order.shippedAt = new Date();
+
+      setImmediate(async () => {
+        try {
+          const user = await User.findById(order.userId);
+
+          if (user?.email) {
+         await sendEmail(
+    user.email,
+    "Your Order Has Been Shipped 🚚 | Karmaas",
+    `
+    <div style="font-family:Arial;background:#f6f6f6;padding:20px;">
+
+      <div style="max-width:600px;margin:auto;background:#fff;border-radius:10px;overflow:hidden;">
+
+        <!-- HEADER -->
+        <div style="background:#1e88e5;color:#fff;padding:20px;text-align:center;">
+          <h2 style="margin:0;">KARMAA'S 🌿</h2>
+          <p style="margin-top:5px;">Your Order is On the Way</p>
+        </div>
+
+        <!-- BODY -->
+        <div style="padding:25px;color:#333;">
+
+          <h3>Hi ${user.name}, 👋</h3>
+
+          <p>Great news! Your order has been <b>shipped successfully</b> 🚚</p>
+
+          <div style="background:#f5f5f5;padding:15px;border-radius:8px;margin:15px 0;">
+            <p><strong>Order ID:</strong> ${order._id}</p>
+            <p><strong>Shipped On:</strong> ${new Date().toLocaleString()}</p>
+            <p><strong>Status:</strong> Shipped 🚚</p>
+          </div>
+
+          <p>Your package is on its way and will reach you soon. You will receive updates as it moves.</p>
+
+          <div style="text-align:center;margin:20px 0;">
+            <a href="https://karmaass.com"
+              style="background:#2e7d32;color:#fff;padding:12px 18px;text-decoration:none;border-radius:6px;">
+              Track Order
+            </a>
+          </div>
+
+          <p>Thank you for shopping with us ❤️</p>
+
+          <p><b>Karmaas Team</b></p>
+
+        </div>
+
+      </div>
+    </div>
+    `
+  );          }
+        } catch (e) {
+          console.log("Email error:", e.message);
+        }
+      });
     }
 
-    // ---------------- DELIVERED ----------------
-    if (status === "DELIVERED") {
-      if (order.orderStatus === "shipped") {
-        order.orderStatus = "delivered";
-        order.deliveredAt = new Date();
+    // ================= DELIVERED =================
+    if (
+      deliveredStates.includes(statusRaw) &&
+      order.orderStatus === "shipped"
+    ) {
+      order.orderStatus = "delivered";
+      order.deliveredAt = new Date();
 
-        setImmediate(async () => {
-          try {
-            const user = await User.findById(order.userId);
+      setImmediate(async () => {
+        try {
+          const user = await User.findById(order.userId);
 
-            if (user?.email) {
-              await sendEmail(
-                user.email,
-                "Order Delivered 🎉 | Karmaas",
-                `<p>Your order ${order._id} has been delivered.</p>`
-              );
-            }
-          } catch (e) {
-            console.log("Email error:", e.message);
+          if (user?.email) {
+                      await sendEmail(
+    user.email,
+    "Order Delivered 🎉 | Karmaas",
+    `
+    <div style="font-family:Arial;background:#f6f6f6;padding:20px;">
+
+      <div style="max-width:600px;margin:auto;background:#fff;border-radius:10px;overflow:hidden;">
+
+        <!-- HEADER -->
+        <div style="background:#2e7d32;color:#fff;padding:20px;text-align:center;">
+          <h2 style="margin:0;">KARMAA'S 🌿</h2>
+          <p style="margin-top:5px;">Order Successfully Delivered</p>
+        </div>
+
+        <!-- BODY -->
+        <div style="padding:25px;color:#333;">
+
+          <h3>Hi ${user.name}, 👋</h3>
+
+          <p>Your order has been <b>delivered successfully</b> 🎉</p>
+
+          <div style="background:#f5f5f5;padding:15px;border-radius:8px;margin:15px 0;">
+            <p><strong>Order ID:</strong> ${order._id}</p>
+            <p><strong>Delivered On:</strong> ${new Date().toLocaleString()}</p>
+            <p><strong>Status:</strong> Delivered 🎉</p>
+          </div>
+
+          <p>We hope you loved your purchase ❤️</p>
+          <p>If you have any feedback, feel free to reach out.</p>
+
+          <div style="text-align:center;margin:20px 0;">
+            <a href="https://karmaass.com"
+              style="background:var(--primary-color);color:#fff;padding:12px 18px;text-decoration:none;border-radius:6px;">
+              Shop Again
+            </a>
+          </div>
+
+          <p>We look forward to serving you again 🙏</p>
+
+          <p><b>Karmaas Team</b></p>
+
+        </div>
+
+      </div>
+    </div>
+    `
+  );
           }
-        });
-      }
+        } catch (e) {
+          console.log("Email error:", e.message);
+        }
+      });
     }
 
-    // ---------------- RTO HANDLING ----------------
-    if (status.includes("RTO")) {
+    // ================= RTO =================
+    if (rtoStates.includes(statusRaw)) {
       order.orderStatus = "cancelled";
     }
 
@@ -830,11 +859,14 @@ exports.shiprocketWebhook = async (req, res) => {
     console.log(`Order updated: ${order._id} -> ${order.orderStatus}`);
 
     return res.sendStatus(200);
+
   } catch (err) {
     console.error("Webhook Error:", err);
     return res.sendStatus(500);
   }
 };
+
+
 // product Management
 
 

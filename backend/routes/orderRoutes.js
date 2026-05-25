@@ -6,6 +6,8 @@ const sendEmail = require("../Utils/SendEmail");
 const User = require("../models/User");
 const  formatDate  = require("../Utils/FormateDate");
 const Offer = require("../models/Offer");
+
+const Product = require("../models/Product");
 // Protected route
 router.post("/checkout", protect, (req, res) => {
   res.json({
@@ -296,23 +298,21 @@ subtotal - verifiedDiscount;
     // =======================
     // 🔥 FIX: ATTACH SKU HERE
     // =======================
-    const itemsWithSKU = await Promise.all(
-      items.map(async (item) => {
-        // assuming Product collection has sku stored
-        const product = await Product.findById(item._id);
+const itemsWithSKU = items.map((item) => {
+  return {
+    productId: item._id,
+    name: item.name,
+    price: item.price,
+    quantity: item.quantity,
 
-        return {
-          productId: item._id,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-
-          // 🔥 ADD SKU HERE
-          sku: product?.sku || `KMA-GEN-${item._id}`
-        };
-      })
-    );
-
+    // ✅ DIRECT FROM CART (BEST)
+    sku: item.sku || `KMA-${item.name
+      .replace(/Karmaas/gi, "")
+      .trim()
+      .split(" ")[0]
+      .toUpperCase()}`
+  };
+});
 // =======================
 // PAYMENT STATUS
 // =======================
