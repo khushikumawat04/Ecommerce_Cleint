@@ -5,7 +5,7 @@ const sendEmail = require("../Utils/SendEmail");
 const formatDate = require("../Utils/FormateDate");
 const axios = require("axios");
 const Product = require("../models/Product");
-const generateSKU = require("../utils/generateSKU");
+const generateSKU = require("../Utils/generateSKU");
 
 // 🔥 GET ALL ORDERS (ADMIN)
 exports.getAllOrders = async (req, res) => {
