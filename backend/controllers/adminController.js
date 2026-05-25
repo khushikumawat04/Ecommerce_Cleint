@@ -367,7 +367,7 @@ exports.shipOrder = async (req, res) => {
         message: "Cancelled order cannot be shipped",
       });
     }
-
+console.log("Shipping order:", order.items);
     const shipment = await createShipment(order);
 
     console.log("📦 Shiprocket Response:", shipment);
@@ -666,6 +666,10 @@ exports.shiprocketWebhook = async (req, res) => {
     } = req.body;
 
     console.log("Shiprocket Webhook:", req.body);
+    console.log(
+  "WEBHOOK BODY:",
+  JSON.stringify(req.body, null, 2)
+);
 
     // ---------------- FIND ORDER ----------------
     const order = await Order.findOne({
@@ -783,9 +787,9 @@ exports.shiprocketWebhook = async (req, res) => {
 
     // ================= DELIVERED =================
     if (
-      deliveredStates.includes(statusRaw) &&
-      order.orderStatus === "shipped"
-    ) {
+  deliveredStates.includes(statusRaw) &&
+  ["shipped", "ready_to_ship"].includes(order.orderStatus)
+)  {
       order.orderStatus = "delivered";
       order.deliveredAt = new Date();
 

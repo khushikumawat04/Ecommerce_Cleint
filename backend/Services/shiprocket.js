@@ -32,6 +32,7 @@ const createShipment = async (order) => {
 
     // ✅ VALIDATION
     for (const item of order.items) {
+      console.log("shipped  item", item.sku);
       if (!item.sku) {
         return {
           success: false,
@@ -68,7 +69,7 @@ const createShipment = async (order) => {
         name: item.name,
 
         // 🔥 REAL SKU (NOT productId)
-        sku: item.sku,
+        sku: item.sku  || item.productId.toString() ,
 
         units: item.quantity,
         selling_price: item.price,
