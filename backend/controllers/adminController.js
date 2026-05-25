@@ -7,6 +7,7 @@ const axios = require("axios");
 const Product = require("../models/Product");
 const generateSKU = require("../Utils/generateSKU");
 
+
 // 🔥 GET ALL ORDERS (ADMIN)
 exports.getAllOrders = async (req, res) => {
       console.log("Orders api hit");

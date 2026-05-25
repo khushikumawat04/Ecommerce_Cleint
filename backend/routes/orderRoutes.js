@@ -302,7 +302,7 @@ subtotal - verifiedDiscount;
         const product = await Product.findById(item.productId);
 
         return {
-          productId: item.productId,
+          productId: item._id,
           name: item.name,
           price: item.price,
           quantity: item.quantity,
