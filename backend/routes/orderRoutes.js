@@ -299,7 +299,7 @@ subtotal - verifiedDiscount;
     const itemsWithSKU = await Promise.all(
       items.map(async (item) => {
         // assuming Product collection has sku stored
-        const product = await Product.findById(item.productId);
+        const product = await Product.findById(item._id);
 
         return {
           productId: item._id,
@@ -308,7 +308,7 @@ subtotal - verifiedDiscount;
           quantity: item.quantity,
 
           // 🔥 ADD SKU HERE
-          sku: product?.sku || `KMA-GEN-${item.productId}`
+          sku: product?.sku || `KMA-GEN-${item._id}`
         };
       })
     );
