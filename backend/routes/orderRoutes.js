@@ -293,6 +293,26 @@ subtotal - verifiedDiscount;
 
 }
 
+    // =======================
+    // 🔥 FIX: ATTACH SKU HERE
+    // =======================
+    const itemsWithSKU = await Promise.all(
+      items.map(async (item) => {
+        // assuming Product collection has sku stored
+        const product = await Product.findById(item.productId);
+
+        return {
+          productId: item.productId,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+
+          // 🔥 ADD SKU HERE
+          sku: product?.sku || `KMA-GEN-${item.productId}`
+        };
+      })
+    );
+
 // =======================
 // PAYMENT STATUS
 // =======================
@@ -315,7 +335,7 @@ const order = await Order.create({
 
 userId: req.user._id,
 
-items,
+items: itemsWithSKU,
 
 subtotal,
 

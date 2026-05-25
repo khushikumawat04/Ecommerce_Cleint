@@ -136,17 +136,14 @@ console.error(err);
 
 // BULK SHIP
 const shipSelectedOrders = async () => {
-
   try {
-
     if (selectedOrders.length === 0) {
       toast.error("Please select orders");
       return;
     }
 
-    for (const id of selectedOrders) {
-
-      await axios.post(
+    const requests = selectedOrders.map((id) =>
+      axios.post(
         `${baseURL}/api/admin/ship/${id}`,
         {},
         {
@@ -154,29 +151,24 @@ const shipSelectedOrders = async () => {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
-      );
-
-    }
-
-    toast.success(
-      "Selected orders shipped successfully"
+      )
     );
+
+    const results = await Promise.allSettled(requests);
+
+    const success = results.filter(
+      (r) => r.status === "fulfilled"
+    ).length;
+
+    const failed = results.length - success;
+
+    toast.success(`${success} shipped, ${failed} failed`);
 
     setSelectedOrders([]);
-
     fetchOrders();
-
   } catch (err) {
-
-    console.error(err);
-
-    toast.error(
-      err.response?.data?.message ||
-      "Bulk shipping failed"
-    );
-
+    toast.error("Bulk shipping failed");
   }
-
 };
 // const syncTracking = async(id)=>{
 // try{
@@ -266,9 +258,7 @@ e.target.value
 <option value="shipped">Shipped</option>
 <option value="delivered">Delivered</option>
 <option value="cancelled">Cancelled</option>
-<option value="processing">
-Processing
-</option>
+<option value="ready_to_ship">Ready to Ship</option >
 </select>
 
 
@@ -450,13 +440,13 @@ order.orderStatus.slice(1)
 
 {/* CONFIRMED → PROCESSING (manual if needed) */}
 {order.orderStatus==="confirmed" && (
-<option value="processing">
-Processing
+<option value="ready_to_ship">
+Ready to Ship
 </option>
 )}
 
-{/* PROCESSING → SHIPPED */}
-{order.orderStatus==="processing" && (
+{/* READY TO SHIP → SHIPPED */}
+{order.orderStatus==="ready_to_ship" && (
 <option value="shipped">
 Shipped
 </option>
@@ -492,9 +482,9 @@ onClick={()=>shipOrder(order._id)}
 </button>
 )} */}
 
-{order.orderStatus==="processing" && (
+{order.orderStatus==="ready_to_ship" && (
 <button disabled className="btn-ship shipped">
-⏳ Processing
+⏳ Ready to Ship
 </button>
 )}
 

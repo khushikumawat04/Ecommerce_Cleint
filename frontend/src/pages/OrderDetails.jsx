@@ -64,7 +64,7 @@ function OrderDetails() {
         <p>Created</p>
       </div> */}
 
-      <div className={`step ${["confirmed","processing","shipped","delivered"].includes(order.orderStatus) ? "active" : ""}`}>
+      <div className={`step ${["confirmed","ready_to_ship","shipped","delivered"].includes(order.orderStatus) ? "active" : ""}`}>
         <i className="fas fa-check-circle"></i>
         <p>Confirmed</p>
         <p className="text-dark"> {new Date(order.createdAt).toLocaleString("en-IN", {
@@ -76,9 +76,9 @@ function OrderDetails() {
       </div>
 
       
-      <div className={`step ${["processing","shipped","delivered"].includes(order.orderStatus) ? "active" : ""}`}>
+      <div className={`step ${["ready_to_ship","shipped","delivered"].includes(order.orderStatus) ? "active" : ""}`}>
      <i className="fas fa-sync me-2"></i>
-        <p>Processing</p>
+        <p>Ready to Ship</p>
 
       </div>
 
