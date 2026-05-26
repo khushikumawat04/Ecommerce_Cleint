@@ -649,6 +649,7 @@ console.log("Shipping order:", order.items);
 
 
 exports.shiprocketWebhook = async (req, res) => {
+    console.log("🔥 SHIPROCKET WEBHOOK HIT");
   try {
     // ---------------- SECURITY CHECK ----------------
     if (
@@ -659,6 +660,7 @@ exports.shiprocketWebhook = async (req, res) => {
     }
 
     const {
+        order_id,
       shipment_id,
       awb_code,
       current_status,
@@ -672,15 +674,24 @@ exports.shiprocketWebhook = async (req, res) => {
 );
 
     // ---------------- FIND ORDER ----------------
-    const order = await Order.findOne({
-      shipmentId: String(shipment_id),
-    });
+    // const order = await Order.findOne({
+    //   shipmentId: String(shipment_id),
+    // });
 
-    if (!order) {
-      console.log("No order found:", shipment_id);
-      return res.sendStatus(200);
-    }
+    // if (!order) {
+    //   console.log("No order found:", shipment_id);
+    //   return res.sendStatus(200);
+    // }
 
+    // ---------------- FIND ORDER ----------------
+const order = await Order.findOne({
+  shiprocketOrderId: String(order_id),
+});
+
+if (!order) {
+  console.log("No order found:", order_id);
+  return res.sendStatus(200);
+}
     // ---------------- SAVE AWB ----------------
     if (awb_code && !order.awbCode) {
       order.awbCode = awb_code;
@@ -756,7 +767,7 @@ exports.shiprocketWebhook = async (req, res) => {
 
           <div style="background:#f5f5f5;padding:15px;border-radius:8px;margin:15px 0;">
             <p><strong>Order ID:</strong> ${order._id}</p>
-            <p><strong>Shipped On:</strong> ${new Date().toLocaleString()}</p>
+            <p><strong>Shipped On:</strong> ${new Date()}</p>
             <p><strong>Status:</strong> Shipped 🚚</p>
           </div>
 
@@ -821,7 +832,7 @@ exports.shiprocketWebhook = async (req, res) => {
 
           <div style="background:#f5f5f5;padding:15px;border-radius:8px;margin:15px 0;">
             <p><strong>Order ID:</strong> ${order._id}</p>
-            <p><strong>Delivered On:</strong> ${new Date().toLocaleString()}</p>
+            <p><strong>Delivered On:</strong> ${new Date()}</p>
             <p><strong>Status:</strong> Delivered 🎉</p>
           </div>
 

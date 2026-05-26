@@ -183,7 +183,7 @@ orderStatus: {
     trackingUrl: String,
     courier: String,
     shipmentId: String,
-
+shiprocketOrderId: String,
     shiprocketStatus: {
       type: String,
       enum: ["not_created", "created", "awb_assigned", "shipped", "delivered", "failed"],

@@ -109,6 +109,7 @@ const createShipment = async (order) => {
     return {
       success: true,
       shipmentId: data.shipment_id,
+      shiprocketOrderId = data.order_id,
       awb: data.awb_code || "",
       courier: data.courier_name || "",
       trackingUrl: data.awb_code

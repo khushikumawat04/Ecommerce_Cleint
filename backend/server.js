@@ -31,7 +31,7 @@ app.use(
 express.raw({ type: "application/json" })
 );
 
-app.use(express.json());
+
 
 // ======================
 // 3. NORMAL BODY PARSING
