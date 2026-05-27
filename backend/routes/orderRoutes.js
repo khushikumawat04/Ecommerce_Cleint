@@ -627,9 +627,11 @@ router.put("/cancel/:id", protect, async (req, res) => {
 
 // refund status update
 router.get("/refund-track/:orderId", protect, async (req, res) => {
+  console.log("Refund tracking requested for order:", req.params.orderId);
+  const orderId = req.params.orderId;
   try {
 
-    const order = await Order.findById(req.params.orderId);
+    const order = await Order.findById(orderId);
 
     if (!order) {
       return res.status(404).json({
@@ -653,6 +655,8 @@ router.get("/refund-track/:orderId", protect, async (req, res) => {
 
     // fetch latest refund from Razorpay
     const refund = await razorpay.refunds.fetch(order.refundId);
+    console.log("Latest refund data from Razorpay:", refund);
+    console.log("Refund data:", refund);
 
     // sync DB
     order.refundStatus = refund.status;
