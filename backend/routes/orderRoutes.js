@@ -456,9 +456,8 @@ router.put("/cancel/:id", protect, async (req, res) => {
     }
   );
 
- order.refundStatus = refund.status === "processed"
-  ? "refunded"
-  : "pending";
+  console.log("Refund initiated:", refund);
+ order.refundStatus = refund.status
   order.refundId = refund.id;
   order.refundedAt = new Date();
 }
@@ -623,5 +622,64 @@ router.put("/cancel/:id", protect, async (req, res) => {
   res.status(500).json({ error: err.message });
 }
 
+});
+
+
+// refund status update
+router.get("/refund-track/:orderId", protect, async (req, res) => {
+  try {
+
+    const order = await Order.findById(req.params.orderId);
+
+    if (!order) {
+      return res.status(404).json({
+        message: "Order not found"
+      });
+    }
+
+    // security check
+    if (order.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        message: "Unauthorized"
+      });
+    }
+
+    // no refund yet
+    if (!order.refundId) {
+      return res.status(400).json({
+        message: "Refund not initiated"
+      });
+    }
+
+    // fetch latest refund from Razorpay
+    const refund = await razorpay.refunds.fetch(order.refundId);
+
+    // sync DB
+    order.refundStatus = refund.status;
+    await order.save();
+
+    res.json({
+      success: true,
+
+      refundId: refund.id,
+
+      refundStatus: refund.status,
+
+      amount: refund.amount / 100,
+
+      createdAt: refund.created_at,
+
+      speedProcessed: refund.speed_processed,
+
+      paymentId: refund.payment_id
+    });
+
+  } catch (err) {
+
+    res.status(500).json({
+      success: false,
+      error: err.message
+    });
+  }
 });
 module.exports = router;

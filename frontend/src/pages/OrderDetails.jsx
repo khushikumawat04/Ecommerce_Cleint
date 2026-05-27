@@ -8,12 +8,41 @@ import "../styles/orderDetails.css";
 function OrderDetails() {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
+  const [refundData, setRefundData] = useState(null);
 
   const baseURL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     fetchOrder();
+      fetchRefundTracking();
+
+  const interval = setInterval(() => {
+
+    fetchRefundTracking();
+
+  }, 30000);
+
+  return () => clearInterval(interval);
   }, []);
+
+  const fetchRefundTracking = async () => {
+  try {
+
+    const res = await axios.get(
+      `${baseURL}/api/orders/refund-track/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      }
+    );
+
+    setRefundData(res.data);
+
+  } catch (err) {
+    console.log(err);
+  }
+};
 
   const fetchOrder = async () => {
     try {
@@ -55,6 +84,65 @@ function OrderDetails() {
       </p>
 
       <p><strong>Reason:</strong> {order.cancelReason}</p>
+
+      {refundData && (
+  <div
+    className="mt-4 p-3"
+    style={{
+      background: "#fff3cd",
+      borderRadius: "12px"
+    }}
+  >
+
+    <h6 className="mb-3">
+      💰 Refund Tracking
+    </h6>
+
+    {refundData.refundStatus === "pending" && (
+      <div>
+
+        <p className="text-warning fw-bold">
+          ⏳ Refund Initiated
+        </p>
+
+        <small className="text-muted">
+          Refund is being processed.
+        </small>
+
+      </div>
+    )}
+
+    {refundData.refundStatus === "processed" && (
+      <div>
+
+        <p className="text-success fw-bold">
+          ✅ Refund Processed
+        </p>
+
+        <small className="text-muted">
+          Amount will reflect in your bank
+          account within 5-7 business days.
+        </small>
+
+      </div>
+    )}
+
+    {refundData.refundStatus === "failed" && (
+      <div>
+
+        <p className="text-danger fw-bold">
+          ❌ Refund Failed
+        </p>
+
+        <small className="text-muted">
+          Please contact support.
+        </small>
+
+      </div>
+    )}
+
+  </div>
+)}
     </div>
   ) : (
     <div className="timeline">

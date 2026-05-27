@@ -12,6 +12,8 @@ function Home() {
    const baseURL = process.env.REACT_APP_API_URL;
    const [category, setCategory] = useState("All");
    const [offers, setOffers] = useState([]);
+   
+  const [showAlert, setShowAlert] = useState(true);
 const isSimilar = (a, b) => {
   return a.includes(b) || b.includes(a);
 };
@@ -51,6 +53,28 @@ const filteredProducts = products.filter(product => {
 
   <Navbar onSearch={setSearchTerm} products={products}  />
 
+   {/* MAINTENANCE ALERT BANNER */}
+      {showAlert && (
+        <div 
+          className="alert alert-danger alert-dismissible fade show text-center m-0" 
+          role="alert"
+          style={{ 
+            backgroundColor: '#fff3cd', 
+            color: '#856404', 
+            borderBottom: '2px solid #ffeeba',
+            padding: '15px 20px',
+            position: 'relative',
+            zIndex: 1050
+          }}
+        >
+          <strong style={{ color: '#721c24' }}>⚠️ IMPORTANT NOTICE: </strong> 
+          Our website is currently undergoing <strong>maintenance and testing</strong>. 
+          Please do <strong>NOT</strong> place any orders at this time. If you choose to proceed, 
+          it is at your own responsibility, and payments may be <strong>non-refundable</strong>.
+          
+ 
+        </div>
+      )}
       {/* HERO SECTION */}
       <div className="hero-section text-center">
         <h1 className="hero-title">
