@@ -184,20 +184,30 @@ orderStatus: {
     courier: String,
     shipmentId: String,
 shiprocketOrderId: String,
-    shiprocketStatus: {
-      type: String,
-      enum: ["not_created", "created", "awb_assigned", "shipped", "delivered", "failed"],
-      default: "not_created"
-    },
+   shiprocketStatus: {
+  type: String,
+  default: "not_created"
+},
+    lastWebhookUpdate: Date,
 
     cancelReason: {
       type: String,
       default: ""
     },
+    trackingStatus: String,
+lastCronAt: Date,
+
+     refundStatus: {
+  type: String,
+  enum: ["not_refunded", "pending", "refunded", "failed"],
+  default: "not_refunded",
+},
+  refundId: String,
+  refundedAt: Date,
 
     cancelledAt: Date,
     deliveredAt: Date,
-    lastWebhookUpdate: Date
+  
   },
   { timestamps: true }
 );

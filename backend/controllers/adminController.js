@@ -673,15 +673,7 @@ exports.shiprocketWebhook = async (req, res) => {
   JSON.stringify(req.body, null, 2)
 );
 
-    // ---------------- FIND ORDER ----------------
-    // const order = await Order.findOne({
-    //   shipmentId: String(shipment_id),
-    // });
-
-    // if (!order) {
-    //   console.log("No order found:", shipment_id);
-    //   return res.sendStatus(200);
-    // }
+   
 
     // ---------------- FIND ORDER ----------------
 const order = await Order.findOne({
@@ -707,6 +699,7 @@ if (!order) {
       .replace(/\s+/g, "_"); // IN TRANSIT → IN_TRANSIT
 
     console.log("Normalized Status:", statusRaw);
+    
 
     // ---------------- SHIPPED STATES ----------------
     const shippedStates = [
@@ -733,9 +726,9 @@ if (!order) {
 
     // ================= SHIPPED =================
     if (
-      shippedStates.includes(statusRaw) &&
-      order.orderStatus === "ready_to_ship"
-    ) {
+  shippedStates.includes(statusRaw) &&
+  order.orderStatus !== "shipped"
+)  {
       order.orderStatus = "shipped";
       order.shippedAt = new Date();
 
@@ -797,10 +790,10 @@ if (!order) {
     }
 
     // ================= DELIVERED =================
-    if (
+if (
   deliveredStates.includes(statusRaw) &&
-  ["shipped", "ready_to_ship"].includes(order.orderStatus)
-)  {
+  order.orderStatus !== "delivered"
+) {
       order.orderStatus = "delivered";
       order.deliveredAt = new Date();
 

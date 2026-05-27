@@ -12,6 +12,7 @@ const contectRoutes = require("./routes/contactRoutes");
 const offerRoutes = require("./routes/offerRoutes");
 const sendEmail = require("./Utils/SendEmail");
 require("./cron/cleanupOrders"); // Start the cleanup cron job
+require("./cron/shiprocketSyncCron"); // Start the Shiprocket sync cron job
 dotenv.config();
 connectDB();
 

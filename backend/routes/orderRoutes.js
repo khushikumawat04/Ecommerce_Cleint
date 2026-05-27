@@ -6,6 +6,7 @@ const sendEmail = require("../Utils/SendEmail");
 const User = require("../models/User");
 const  formatDate  = require("../Utils/FormateDate");
 const Offer = require("../models/Offer");
+const razorpay = require("../config/razorpay");
 
 const Product = require("../models/Product");
 // Protected route
@@ -429,6 +430,11 @@ router.put("/cancel/:id", protect, async (req, res) => {
         message: "Not authorized"
       });
     }
+    if (order.orderStatus === "cancelled") {
+  return res.status(400).json({
+    message: "Order already cancelled"
+  });
+}
 
     // Prevent cancel after shipped/delivered
     if (["shipped", "delivered"].includes(order.orderStatus)) {
@@ -436,6 +442,26 @@ router.put("/cancel/:id", protect, async (req, res) => {
         message: "Order cannot be cancelled now"
       });
     }
+
+    if (
+  order.paymentMethod === "ONLINE" &&
+  order.paymentStatus === "paid"
+) {
+
+  const refund = await razorpay.payments.refund(
+    order.razorpayPaymentId,
+    {
+      amount: Math.round(order.totalAmount * 100),
+      speed: "normal"
+    }
+  );
+
+ order.refundStatus = refund.status === "processed"
+  ? "refunded"
+  : "pending";
+  order.refundId = refund.id;
+  order.refundedAt = new Date();
+}
 
     // Update order
     order.orderStatus = "cancelled";
@@ -497,7 +523,7 @@ router.put("/cancel/:id", protect, async (req, res) => {
             </div>
 
             <p style="margin-top:15px;">
-              If payment was made, refund (if applicable) will be processed shortly 💰
+             Your refund has been initiated and will reflect in your account within 5-7 business days 💰
             </p>
 
             <div style="text-align:center;margin:25px 0;">

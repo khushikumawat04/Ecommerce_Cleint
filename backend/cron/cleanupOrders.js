@@ -2,7 +2,7 @@ const cron = require("node-cron");
 const Order = require("../models/Orders");
 
 // Every 5 minutes
-cron.schedule("*/30 * * * *", async () => {
+cron.schedule("*/60 * * * *", async () => {
 
   try {
 
