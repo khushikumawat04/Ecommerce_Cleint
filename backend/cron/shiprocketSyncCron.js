@@ -1,61 +1,67 @@
 const cron = require("node-cron");
 const axios = require("axios");
 const Order = require("../models/Orders");
-const {getToken }= require("../Services/shiprocket");
+const { getToken } = require("../Services/shiprocket");
 
+/* ==============================
+   🚀 SHIPROCKET TRACKING CRON
+   SAFE + PRODUCTION READY
+============================== */
 cron.schedule("*/30 * * * *", async () => {
-  try {
-    console.log("🔄 Running Shiprocket Sync Cron");
+  console.log("🔄 Backup tracking cron started");
 
-    const token = await getToken();
+  const token = await getToken();
 
-    const orders = await Order.find({
-      orderStatus: { $nin: ["delivered", "cancelled"] },
-      awbCode: { $exists: true },
-    });
+  const orders = await Order.find({
+    awbCode: { $exists: true, $ne: "" },
+    orderStatus: { $nin: ["delivered", "cancelled"] },
+    lastWebhookUpdate: { $lt: new Date(Date.now() - 30 * 60 * 1000) }
+  });
 
-    for (let order of orders) {
-      try {
-        const { data } = await axios.get(
-          `https://apiv2.shiprocket.in/v1/external/courier/track/awb/${order.awbCode}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+  console.log("📦 Backup orders:", orders.length);
 
-        const statusRaw = data?.tracking_data?.shipment_status;
-        if (!statusRaw) continue;
-
-        const status = statusRaw.toUpperCase().replace(/\s+/g, "_");
-
-        if (order.trackingStatus === status) continue;
-
-        order.trackingStatus = status;
-        order.lastCronAt = new Date();
-
-        if (status.includes("PICK") || status.includes("TRANSIT") || status.includes("OUT")) {
-          order.orderStatus = "shipped";
+  for (let order of orders) {
+    try {
+      const { data } = await axios.get(
+        `https://apiv2.shiprocket.in/v1/external/courier/track/awb/${order.awbCode}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
         }
+      );
 
-        if (status.includes("DELIVERED")) {
-          order.orderStatus = "delivered";
-          order.deliveredAt = new Date();
-        }
+      const track = data?.tracking_data?.shipment_track?.[0];
 
-        if (status.includes("RTO")) {
-          order.orderStatus = "cancelled";
-        }
+      const statusRaw =
+        track?.current_status ||
+        data?.tracking_data?.shipment_track_activities?.slice(-1)?.[0]?.["sr-status-label"];
 
-        await order.save();
+      if (!statusRaw) continue;
 
-        console.log(`✔ Updated ${order._id} → ${status}`);
-      } catch (err) {
-        console.log("Order sync error:", order._id, err.message);
+      const status = statusRaw.toUpperCase().replace(/\s+/g, "_");
+
+      order.trackingStatus = status;
+      order.shiprocketStatus = status;   // ✅ ADD THIS
+      order.lastCronAt = new Date();
+
+      if (status.includes("DELIVERED")) {
+        order.orderStatus = "delivered";
+        order.deliveredAt = new Date();
       }
+
+      if (status.includes("TRANSIT") || status.includes("OUT") || status.includes("PICK")) {
+        order.orderStatus = "shipped";
+      }
+
+      if (status.includes("RTO")) {
+        order.orderStatus = "cancelled";
+      }
+
+      await order.save();
+
+      console.log("✔ Fixed order:", order._id, status);
+
+    } catch (err) {
+      console.log("❌ Cron fix error:", order._id, err.message);
     }
-  } catch (err) {
-    console.error("CRON ERROR:", err.message);
   }
 });
-
-module.exports = {}; // important (just to keep file active)

@@ -730,6 +730,7 @@ if (!order) {
   order.orderStatus !== "shipped"
 )  {
       order.orderStatus = "shipped";
+      order.lastWebhookUpdate = new Date();
       order.shippedAt = new Date();
 
       setImmediate(async () => {
@@ -795,6 +796,7 @@ if (
   order.orderStatus !== "delivered"
 ) {
       order.orderStatus = "delivered";
+      order.lastWebhookUpdate = new Date();
       order.deliveredAt = new Date();
 
       setImmediate(async () => {
