@@ -197,9 +197,14 @@ shiprocketOrderId: String,
     trackingStatus: String,
 lastCronAt: Date,
 
-     refundStatus: {
+ refundStatus: {
   type: String,
-  enum: ["not_refunded", "pending", "refunded", "failed"],
+  enum: [
+    "not_refunded",
+    "pending",
+    "processed",
+    "failed"
+  ],
   default: "not_refunded",
 },
   refundId: String,
