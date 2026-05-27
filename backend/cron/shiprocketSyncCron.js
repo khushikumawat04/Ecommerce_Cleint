@@ -1,6 +1,6 @@
 const cron = require("node-cron");
 const axios = require("axios");
-const Order = require("../models/Order");
+const Order = require("../models/Orders");
 const {getToken }= require("../Services/shiprocket");
 
 cron.schedule("*/30 * * * *", async () => {
