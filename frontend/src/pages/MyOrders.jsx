@@ -177,6 +177,16 @@ const [cancelData, setCancelData] = useState({
 <Link to={`/order/${order._id}`} className="btn btn-outline-green mt-2">
   View Details
 </Link>
+{order.awbCode && (
+  <a
+    href={`https://shiprocket.co/tracking/${order.awbCode}`}
+    target="_blank"
+    rel="noreferrer"
+    className="track-btn"
+  >
+    Track Order
+  </a>
+)}
 {order.orderStatus !== "cancelled" &&
  order.orderStatus !== "delivered" && (
   <button

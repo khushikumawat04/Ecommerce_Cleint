@@ -699,12 +699,12 @@ className="item-row"
 </p>
 
 <a
-href={selectedOrder.trackingUrl}
-target="_blank"
-rel="noreferrer"
-className="track-btn"
+  href={`https://shiprocket.co/tracking/${selectedOrder.awbCode}`}
+  target="_blank"
+  rel="noreferrer"
+  className="track-btn"
 >
-Track Shipment
+  Track Shipment
 </a>
 
 </>
