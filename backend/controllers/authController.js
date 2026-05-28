@@ -2,285 +2,239 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-// 🔐 GENERATE TOKEN
+/* =========================
+   UTILITIES
+========================= */
+
+// Normalize email once
+const normalizeEmail = (email) => email.toLowerCase().trim();
+
+// Email validation helper
+const isValidEmail = (email) => {
+  const regex =
+    /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+  return regex.test(email);
+};
+
+// Generate JWT token
 const generateToken = (user) => {
   if (!process.env.JWT_SECRET) {
-    throw new Error("JWT_SECRET is missing in .env");
+    throw new Error("JWT_SECRET missing in .env");
   }
 
   return jwt.sign(
-    { _id: user._id },
-    process.env.JWT_SECRET, // ✅ direct use (FIXED)
+    {
+      _id: user._id,
+      role: user.role,
+    },
+    process.env.JWT_SECRET,
     { expiresIn: "7d" }
   );
 };
 
-// 📝 REGISTER
+/* =========================
+   REGISTER
+========================= */
 exports.register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Validate fields
     if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
-        message: "All fields are required"
+        message: "All fields are required",
       });
     }
 
-    const emailRegex = /^\S+@\S+\.\S+$/;
-
-    if (!emailRegex.test(email)) {
+    if (!isValidEmail(email)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid email format"
+        message: "Invalid email format",
       });
     }
 
     if (password.length < 6) {
       return res.status(400).json({
         success: false,
-        message: "Password must be at least 6 characters"
+        message: "Password must be at least 6 characters",
       });
     }
 
-    const normalizedEmail = email.toLowerCase().trim();
+    const normalizedEmail = normalizeEmail(email);
 
-    // Check existing user
-    const existingUser = await User.findOne({
-      email: normalizedEmail
-    });
+    const existingUser = await User.findOne({ email: normalizedEmail });
 
     if (existingUser) {
-
-      // If user exists via Google
       if (existingUser.provider === "google") {
         return res.status(400).json({
           success: false,
-          message:
-            "This email is registered using Google Sign-In. Please login with Google."
+          message: "Use Google Sign-In for this account",
         });
       }
 
       return res.status(400).json({
         success: false,
-        message: "User already exists"
+        message: "User already exists",
       });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
     const user = await User.create({
       name,
       email: normalizedEmail,
       password: hashedPassword,
-      provider: "local"
+      provider: "local",
     });
-
-    const token = generateToken(user);
 
     return res.status(201).json({
       success: true,
-      token,
+      token: generateToken(user),
       user: {
         _id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
-      }
+        role: user.role,
+      },
     });
-
   } catch (err) {
-    console.error(err);
+    console.error("REGISTER ERROR:", err);
 
     return res.status(500).json({
       success: false,
-      message: "Server error. Please try again later."
+      message: "Server error",
     });
   }
 };
-// LOGIN
+
+/* =========================
+   LOGIN
+========================= */
 exports.login = async (req, res) => {
   try {
-
     const { email, password } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({
-        success:false,
-        message:"Email and password are required"
+        success: false,
+        message: "Email and password required",
       });
     }
 
-    const emailRegex = /^\S+@\S+\.\S+$/;
-
-    if (!emailRegex.test(email)) {
+    if (!isValidEmail(email)) {
       return res.status(400).json({
-        success:false,
-        message:"Invalid email format"
+        success: false,
+        message: "Invalid email format",
       });
     }
 
     const user = await User.findOne({
-      email: email.toLowerCase().trim()
+      email: normalizeEmail(email),
     });
-    // console.log("User found:", user); // 👈 add this
 
     if (!user) {
       return res.status(404).json({
-        success:false,
-        message:"User not found"
+        success: false,
+        message: "User not found",
       });
     }
 
-    // Google account trying password login
-    if (
-      user.provider === "google" ||
-      !user.password
-    ) {
+    if (user.provider === "google" || !user.password) {
       return res.status(400).json({
-        success:false,
-        message:
-          "This account uses Google Sign-In. Continue with Google."
+        success: false,
+        message: "Use Google Sign-In for this account",
       });
     }
 
-    let isMatch = false;
-
-    try {
-      isMatch = await bcrypt.compare(
-        password,
-        user.password
-      );
-    } catch (error) {
-      return res.status(400).json({
-        success:false,
-        message:"Invalid account password setup"
-      });
-    }
+    const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return res.status(401).json({
-        success:false,
-        message:"Invalid password"
+        success: false,
+        message: "Invalid password",
       });
     }
 
-    const token = jwt.sign(
-      {
-        _id: user._id,
-        role: user.role
-      },
-      process.env.JWT_SECRET,
-      { expiresIn:"7d" }
-    );
-
     return res.status(200).json({
-      success:true,
-      token,
+      success: true,
+      token: generateToken(user),
       user: {
-    _id: user._id,
-    name: user.name,   // 🔥 ADD THIS
-    email: user.email,
-    role: user.role
-  }
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     });
-
-  } catch(err) {
-    console.error(err);
+  } catch (err) {
+    console.error("LOGIN ERROR:", err);
 
     return res.status(500).json({
-      success:false,
-      message:"Server error. Please try again later."
+      success: false,
+      message: "Server error",
     });
   }
 };
 
-// 🔐 CHANGE PASSWORD
+/* =========================
+   CHANGE PASSWORD
+========================= */
 exports.changePassword = async (req, res) => {
-
   try {
-
     const { oldPassword, newPassword } = req.body;
 
-    // validate
     if (!oldPassword || !newPassword) {
       return res.status(400).json({
         success: false,
-        message: "Old password and new password are required"
+        message: "Old and new password required",
       });
     }
 
-    // password length
     if (newPassword.length < 6) {
       return res.status(400).json({
         success: false,
-        message: "New password must be at least 6 characters"
+        message: "Password must be at least 6 characters",
       });
     }
 
-    // find logged in user
     const user = await User.findById(req.user._id);
 
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found"
+        message: "User not found",
       });
     }
 
-    // google account check
-    if (
-      user.provider === "google" ||
-      !user.password
-    ) {
+    if (user.provider === "google" || !user.password) {
       return res.status(400).json({
         success: false,
-        message:
-          "Google login accounts cannot change password here"
+        message: "Google accounts cannot change password",
       });
     }
 
-    // compare old password
-    const isMatch = await bcrypt.compare(
-      oldPassword,
-      user.password
-    );
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
 
     if (!isMatch) {
       return res.status(401).json({
         success: false,
-        message: "Old password is incorrect"
+        message: "Old password incorrect",
       });
     }
 
-    // hash new password
-    const hashedPassword = await bcrypt.hash(
-      newPassword,
-      10
-    );
-
-    // update password
-    user.password = hashedPassword;
-
+    user.password = await bcrypt.hash(newPassword, 10);
     await user.save();
 
     return res.status(200).json({
       success: true,
-      message: "Password changed successfully"
+      message: "Password updated successfully",
     });
-
   } catch (err) {
-
-    console.error(err);
+    console.error("CHANGE PASSWORD ERROR:", err);
 
     return res.status(500).json({
       success: false,
-      message: "Server error"
+      message: "Server error",
     });
-
   }
-
 };
