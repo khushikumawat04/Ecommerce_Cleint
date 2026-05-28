@@ -70,8 +70,8 @@ const loginLimiter = rateLimit({
   max: 5,
   message: "Too many login attempts, try again later."
 });
-app.use("/api", apilimiter);
-app.use("/api/auth/login", loginLimiter);
+// app.use("/api", apilimiter);
+// app.use("/api/auth/login", loginLimiter);
 // Test Route
 app.get("/", (req, res) => {
   res.send("API is running...");
