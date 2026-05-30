@@ -578,14 +578,14 @@ You saved ₹{discount}
 </div>
 
 
-{/* <button
+ <button
   className="btn btn-green w-100 mt-4 fw-bold"
   onClick={handleFinalOrder}
   disabled={paymentMethod !== "ONLINE"}
-> */}
+> 
   {/* Proceed To Pay 💳 */}
-  {/* Currently Not Accepting Orders !
-</button> */}
+ 
+</button> 
 
 </div>
         )}
